@@ -12,10 +12,10 @@ while (szamolo < 11)
     Console.WriteLine(i);
     i++; // i = i + 1;
 }
-*/
+
 
 // irjuk ki az elso 10 olyan szamot, ami oszthato 3-mal ( fent sajat. lent 2 megoldas)
-/*
+
 int i = 1;
 while (i <= 10)
 {
@@ -34,8 +34,8 @@ for (int j = 1; j <= 10; j++)
 {
     Console.WriteLine(j * 3);
 }
-*/
-/*
+
+
 int a = 1, b = 1, i = 1;
 while (i <= 10)
 {
@@ -46,8 +46,12 @@ while (i <= 10)
     }
     i++;
 }
-*/
+
+
+
 for (int k = 1; k <10; k++)
 {
     Console.WriteLine(k + " x 1 = " + k);
 }
+
+*/
