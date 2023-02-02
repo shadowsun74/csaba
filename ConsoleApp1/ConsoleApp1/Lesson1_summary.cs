@@ -26,7 +26,24 @@ Hagyhatsz benne üres helyet, mint itt felül egy üres sor. NE FELEJTSD EL LEZ�
 // azért is jó, mert a kódod mögé is oda tudod írni, hogy ott mi történik, nem kell "külön" sor rá
 
 
-using System;
+// using System;
+
+
+
+// ------------ JÓ TUDNI MIELŐTT NEKIVÁGUK (Visual Studio használt billentyű kombinációk ) ------------------------
+
+// TAB --> elfogadod a listán megjelenő parancsot, amit beír
+// CTRL + SPACE --> ha nem dobja fel a javaslatot, ezzel lehet rásegíteni, hogy tegye meg
+// CTRL (lenyomva tart), majd K és D egymás után --> beigazítja a sorok formázását szépre, olvashatóra
+// CTRL + R --> ha valamelyik változó fölé mész, és ott maradzs, kijelöli az összes hasonlót, ezzel tudsz átnevezni egyszerre mindent ????
+// for begépelése után TAB-TAB (gyors), elvileg behozza az egész struktúráját, csak át kell írnunk, ahogy nekünk tetszik (máshol is?)
+
+
+
+
+// ------------ TANANYAG (KEZDETEK) ------------------------
+
+
 
 Console.WriteLine ("Hello World"); // itt pl. a kód mögött hazsnálom, egysoros
 
@@ -78,9 +95,11 @@ Console.WriteLine(matek5);
 
 
 matek6 = matek6 + 3; // itt a "matek6" kap új értéket. Mi ez? Vedd a mostani értékedet és adj hozzá 3-mat, legyen ez az új értéked
-matek6 += 3; // ugyanaz rövidítve: matek6! adódj össze ("+=") egy másik értékkel, az legyan az új értéked          
+matek6 += 3; // ugyanaz rövidítve: matek6! adódj össze ("+=") egy másik értékkel, az legyan az új értéke.
 // ez mind +, -, *, /, % esetében is működik
 
+matek6 = matek6++; // nem azt írom ki, hogy "változóneve" + 1, hanem ha csak eggyel növelek, akkor elég a "++" ami eggyel növeli az értékét
+matek6 = matek6--; // egyet kivonok belőle. (ez a kettő ilyen létezik)
 
 
 Console.ReadLine(); //ez a sor így változó és más nélkül arra jó, hogy megállítsd a képernyőt ha kell (nyomnod kell Return-t a továbbhoz
@@ -202,11 +221,8 @@ bool cangoout = !cantGoOut; // vagy bool canGoOut = !(isLegBroken|| isRaining); 
 
 
 
-
-
-
-
 // ---------------------------------------------------------------------------------
+
 
 
 // ADAT BEÍRÁSA KÉPERNYŐN
@@ -241,8 +257,8 @@ string adat10 = Console.ReadLine();
 Console.WriteLine("Írj be egy másik számot");
 string adat11 = Console.ReadLine();
 
-int m11 = int.Parse(adat10);
-int m12 = int.Parse(adat11);
+int m11 = int.Parse(adat10); //szövegből szám, mindíg kell, ha számolni akarunk vele
+int m12 = int.Parse(adat11); //szövegből szám, mindíg kell, ha számolni akarunk vele
 
 int summa = m11 + m12;
 int difference = m11 - m12;
@@ -258,5 +274,156 @@ Console.WriteLine("Hányados: " + quotient);
 // ------------------------------------------------------------------------------- 
 // -----------------------------KÖVETKEZŐ PONT -----------------------------------
 // ------------------------------------------------------------------------------- 
+
+
+//VEZÉRLÉSI SZERKEZETEK ( if-else / if-elseif-...-elseif-else) / while)
+
+
+int number = 10; // bármilyen számot adhatsz, akár beolvashatsz is, csak ne felejtsd el szövegből számmá alakítan
+bool isEven; //Páros-e boolean (igen/nem) változó létrehozás
+isEven = number % 2 == 0; // valami akkor páros, ha osztható kettővel
+
+if (isEven) // struktúrája: if (ha) "( )"-között a vizsgálandó elem, majd egy új sorba, amit itt tenni akarunk ha igaz "{ }" mindíg kapcsos!
+{
+    Console.WriteLine("PÁROS"); // ide sorban egymás alá, beljebb és egymás alatt írva (olvashatóság miatt) minden, amit igen esetén végezzen el
+}
+else // struktúrája: else, majd egy új sorba, amit itt tenni akarunk ha hamis a fenti állítás "{ }" mindíg kapcsos!
+{
+    Console.WriteLine("PÁRATLAN"); // ugyanúgy sorban egymás alá, mit csináljon a nem esetén
+}
+// ez a két utasítás ide tartozik, figyeljünk a közös hazsnálatra. Itt nincs ";" csak a kapcsols zárójelen belüli dolgokra. A "{ }" váltja ki
+// egy sorba is írhatnánk az egészet: if (..) { utasítások; utasítások;} de nem olvasható jól. Ha esetén azt történik, ami a"{ }" között van
+// ha "elromlik a formázásunk: tartsuk nyomva a CTRL-t, majd egymás után nyomjuk le a K és D gombot, akkor berendezi szép formára
+
+
+
+// Persze, lehet ezt (páros-páratlan) máshogy is vizsgálni:
+
+string pairity; // létrehzok egy új változót
+if (isEven) // Ha a fenti "isEven" igaz, akkor a "pairity"-be beírom, hogy páros 
+{
+    pairity = ("PÁROS");
+}
+else // Ha a fenti "isEven" hamis, akkor a "pairity"-be beírom, hogy páratlan 
+{
+    pairity = ("PÁRATLAN");
+}
+Console.WriteLine(pairity); // végül kiírom
+
+
+
+// hogyan lehet még egyszerűbben? egy sorban csinálom meg azt, amit fent több sorban.
+string pairity2 = isEven ? "PÁROS" : "PÁRATLAN"; //  Ezt nevezzük feltételes operéátornak. 3 bemenete van.
+
+
+
+// ie-elseif-else használata: nulla, pozitív, negatív megállapításra
+
+if (number > 0) // ha
+{
+    Console.WriteLine("POZITÍV");
+}
+else if (number < 0) // más esetben ha (ebből akár sok is lehet egymás után,ha követjük a szükséges struktúrát, vigyázunk a kapcsols zárójelekre
+{
+    Console.WriteLine("NEGATÍv");
+}
+else
+{
+    Console.WriteLine("NULLA");
+}
+
+
+// ------------------------------------CIKLUS (WHILE)
+
+int m15 = 0;
+while (m15 < 10) // while = amíg; amíg nem teljesül egy, a ( )-ben megadott valmai, addig a kapcsols zárójelek utasításait ismételgesse 
+{
+        Console.WriteLine(m15);
+    m15++; // m15 = m15 + 1;  RETTENETESEN FONTOS: a while esetében eljussunk egy olyan pontig, ahol teljesül a feltétel. Különben végtelen a ciklus!
+}
+
+
+
+// ----------------------------- SWITCH (nem hazsnáljuk, de olvass utána)
+// arról szól, hogy egy adott feltétel esetében a feltételre rátalálva CSAK az arra vonatkozó ködrészlet fog megfutni, a többi nem
+// hasonlóan kapcsols zárójeles, mint a többi fent, ; hazsnálat is hasonló
+
+Console.WriteLine("Hétfő, kedd, vagy szerda a jobb nap? Add meg számmal (1-3): ");
+string adat15 = Console.ReadLine();
+
+int m16 = int.Parse(adat15); //szövegből szám, mindíg kell, ha számolni akarunk vele
+
+switch (m16) // itt adjuk meg a switch-nek a bekért számot, legyen az a paraméter, ami alapján a lenti kód blokkok között keres és futtat
+{
+    case 1: // első eset
+        Console.WriteLine("Hétfő a jobb nap"); // első esetben fusson ez
+        break; // nem kötelező, de a break jó, mert ha megvan a case, aminél futnia kell, a többin ne fusson meg (ott már úgysem csinál semmit)
+
+    case 2:
+        Console.WriteLine("Kedd a jobb nap"); 
+        break;
+
+    case 3:
+        Console.WriteLine("Szerda a jobb nap"); 
+        break;
+}
+
+
+// ------------------------------------------------------------------------------- 
+// -----------------------------KÖVETKEZŐ PONT -----------------------------------
+// ------------------------------------------------------------------------------- 
+
+
+//----------------------- GYAKORLÓ PÉLDÁK
+
+
+// irjuk ki az elso 10 olyan szamot, ami oszthato 3-mal ( fent sajat. lent 2 megoldas)
+
+// a trükk, hogy megyünk 10 olyan számig, ami 3-mal osztható, de ha úgy csináljuk, hogy pl: 1*3... 2*3... 3*3... 4*3 az a megoldást adja
+// mert 1*3 = 3, az első ilyen szám. 2*3 =6, a második ilyen szám, 3*3= a harmadik ilyen szám... stb. gyakorlatilag nem vizsgáljuk, hanem
+// ha sorba megyünk 10-ig az biztosan telejsíti ezt a kérést
+
+int m17 = 1; //innen indulunk
+while (m17 <= 10) // fusson addíg, amíg kevesebb, vagy egyenő 10-zal (ahány ilyet ki kell íratnuk)
+{
+    Console.WriteLine(m17 * 3); // írassuk ki az épp aktuális számot
+    m17++; // egyel növeljük a számot, hogy a következő "kör"-ben már 2..3..4.. stb legyen majd az érték. HA NEM CSINÁLJUK = végtelen ciklus!
+}
+
+
+
+// másik megoldás: az első ilyen szám a 3; tudjuk, hogy 10 ilyen szám kel nekünk, vagyis 10*3 a vége, amíg mennünk kell
+
+
+int m18 = 3; // első szám
+while (m18 <= (3* 10)) // amíg a változó értéke nem lesz 3*10 (keresett szám * alkalom, ahányszor futnia kell), addíg fusson újra és újra 
+{
+    Console.WriteLine(m18); // kiíratom a számot. Azért nem a szám nevelés után, mert akkor az első szám már a 6 lenne
+    m18 += 3; // növelem hárommal. Azért a kiíratás után, amit felül már írtunk
+}
+
+
+
+// ------------------------------- FOR HASZNÁLAT -------------------------------------- 
+
+
+// harmadik megoldás, FOR-ral - valmennyivel rövidebb
+
+
+for (int m19 = 1; m19 <= 10; m19++) // megadjuk a kezdő értéket, amíg az kevesebb vagy egyenő 10, fusson a FOR, növeljük eggyel mindan alk.
+{
+    Console.WriteLine(m19 * 3); // egyszerűen beszorozzuk itt hárommal 
+}
+
+
+
+
+// MÁSIK GYAKORLÁS szorzótáblát készítünk, az 1 x 1 --> 1 x 10 -esekre (erre a számtartományra) 
+
+
+for (int m20 = 1; m20 <=10; m20++)
+{
+    Console.WriteLine(m20 + " x 1 = " + m20);
+}
 
 
