@@ -1,4 +1,4 @@
-﻿
+﻿/*
 /* ez egy  komment ami csak neked információ, nem csinál vele semmita program (skippeli) */
 
 /* ez ugyanolyan komment. De amiért izgalmas
@@ -43,7 +43,7 @@ Hagyhatsz benne üres helyet, mint itt felül egy üres sor. NE FELEJTSD EL LEZ�
 
 // ------------ TANANYAG (KEZDETEK) ------------------------
 
-
+/*
 
 Console.WriteLine ("Hello World"); // itt pl. a kód mögött hazsnálom, egysoros
 
@@ -276,7 +276,7 @@ Console.WriteLine("Hányados: " + quotient);
 // ------------------------------------------------------------------------------- 
 
 
-//VEZÉRLÉSI SZERKEZETEK ( if-else / if-elseif-...-elseif-else) / while)
+//VEZÉRLÉSI SZERKEZETEK ( if-else / elseif-...-elseif-else) / while)
 
 
 int number = 10; // bármilyen számot adhatsz, akár beolvashatsz is, csak ne felejtsd el szövegből számmá alakítan
@@ -426,4 +426,15 @@ for (int m20 = 1; m20 <=10; m20++)
     Console.WriteLine(m20 + " x 1 = " + m20);
 }
 
+
+for (int x = 1; x <= 10; x++)
+{
+    for (int y = 1; y <= 10; y++)
+    {
+        Console.WriteLine($"{x} * {y} = {x*y}");
+}
+}
+
+
+*/
 
