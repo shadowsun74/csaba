@@ -1,7 +1,7 @@
 ﻿/*
 
 int aa1 = 1, aa2 = 3, aa3 = 3, aa4 = 7, aa5 = 5;
-float aa6 = (float)(aa1 + aa2 + aa3 + aa4 + aa5) / 5;
+float aa6 = (float)(aa1 + aa2 + aa3 + aa4 + aa5) / 5; // vagy a másik oldalon írom, hogy 5f
 Console.WriteLine(aa6);
 
 //.......

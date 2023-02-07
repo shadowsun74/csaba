@@ -51,7 +51,7 @@ for (int abc = 1; abc <= number3; abc++)
         Console.WriteLine(abc);
     }
 }
-*/
+
 for (int jjj = 1; jjj <= 10; jjj++)
 {
    for (int jjj2 = 1; jjj2 <= 10; jjj2++)
@@ -62,6 +62,9 @@ for (int jjj = 1; jjj <= 10; jjj++)
         
     }
 }
+
+*/
+
 
 
 
