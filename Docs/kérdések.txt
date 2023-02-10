@@ -1,2 +1,0 @@
-Vége: platform, izometrikus, 3d, procgen
-Mekkora képek/sprite méret

@@ -1,5 +1,5 @@
 ﻿/*
-/* ez egy  komment ami csak neked információ, nem csinál vele semmita program (skippeli) */
+/* ez egy  komment ami csak neked információ, nem csinál vele semmit a program (skippeli) */
 
 /* ez ugyanolyan komment. De amiért izgalmas
 ez több sort is ismer, amíg nem zárod le
