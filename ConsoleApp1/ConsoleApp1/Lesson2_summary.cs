@@ -1,4 +1,4 @@
-﻿
+﻿/*
 
 //ISMÉTLÉS ÉS KIEGÉSZÍTÉS, 1. ÓRA
 //-----------------------------------------------------------------------
@@ -194,7 +194,7 @@ float szign (float elojelecske)         // sajátmegoldás, nem túl jó
 }
 
 
-                                                    // Tanári megoldás
+                                         // Tanári megoldás
 float Siign (float num5)
 {
     if(num5 <0)
@@ -221,3 +221,4 @@ void Mymethod (int n) // létrehozzuk egy (int pareméter)-rel
 
 }
 
+*/

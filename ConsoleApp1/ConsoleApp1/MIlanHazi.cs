@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.X86;
+﻿
 /*
 //1 feladata
 int x = 3, y = 3, z = 5, q = 9, m = 11;
