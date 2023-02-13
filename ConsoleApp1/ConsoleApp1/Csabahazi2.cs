@@ -1,11 +1,9 @@
 ﻿// 1. feladat
 // Math.Clamp(float, float, float);
 
-using System.ComponentModel.Design;
-using System.Net.Security;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Timers;
+
+/*
+
 
 float fourth = Clamp1(151, 120, 150);
 Console.WriteLine($"{fourth}");
@@ -28,6 +26,7 @@ float Clamp1 (float one, float two, float three)
         }
    
 }
+
 
 // --------------------------------------------------------------------
 
@@ -171,3 +170,5 @@ int pita (int pitaa, int pitab, int pitac)
         }
     return 0;
 }
+
+*/
