@@ -1,0 +1,443 @@
+Windows - General -ból ablakok visszadokkolása ha bezárjuk
+Mindent amit betöltünk, game object, rákatt, jobb oldalon lenyitható elemek a komponensek - 1 kötewlez, transform komponens
+x vízszintes (kék)
+Y függöleges (belenderben nem) (zöld)
+z mélység, előre hátra (piros)
+
+Rotation - fokokban van megadva.
+
+Minden kompnens fejlécen van reset!
+
+Robot + material
+
+UV (miint xy tengely) - 0-tól egyig skála, UV koordináta
+pl ház elemek, a négyzeteket 3szögre bontjuk, koordináta, a háromszögeket rávetíti a képre
+
+material, mimnden egyes pixelre tudja a szabályt, hogyan jelenítse meg, pl. tükröződés, amit a shader program kezel (hogy meg van írva).
+
+normal map - ha feltesszük a textúrához, megmondja, ha ráesik a fény,milyen irányban torzítson, törje a fényt.
+
+idáig semmi nincs olyan, ami collision-t ad, maga a tárgy nem, hanem majd pár kockányi hitbox.
+
+directional - nap, egyformán
+point light - gyertya
+
+
+assets - create - c# scipt
+
+unity work
+
+edit - preferences - external tools - 	external scipt editor - ms visual studioo
+
+ha nikncs, windows, package manager - Package in projekt helyett unity manager - visual studio editor kell, nem a code editor
+
+
+---------------
+
+
+
+// using System.Collections;
+// using System.Collections.Generic;
+using UnityEngine;
+
+public class myFirstUnityScript : MonoBehaviour
+{
+    // Start is called before the first frame update
+  //  void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+ //   void Update()
+  //  {
+        
+    }
+}
+
+
+NEM SZABAD A UNITY SCRIPT NEVE ÉS OSZTÁLYNEVE BETŰRE!!
+
+Create Empty (game object)
+csak behúzom  scriptet
+
+
+
+using UnityEngine;
+
+public class myFirstUnityScript : MonoBehaviour
+{
+    void Start() //eredetileg pribate volt, töröltük. Ha start a név, amikor létrejöna komponens, akkor indul
+    {
+        Debug.Log("Hello Unity"); 
+    }
+}
+
+Ha kétszer rányomunk egy ablekra, kiijön nagyban, még 2x akkr visszamegy
+
+a scriptet el kell menteni, mielőtt vidsdzslépünk Unity-be, utána a futtatás gom és megjelenik bent a console fülön
+
+CTRL + D = duplikálás 
+
+----------------
+
+using UnityEngine;
+
+public class myFirstUnityScript : MonoBehaviour
+{
+    void Start() //eredetileg pribate volt, töröltük. Ha start a név, amikor létrejöna komponens, akkor indul
+    {
+        
+        Debug.Log($"Hello I'm {name}"); // a game object nevét írja ki
+	Debug.Log("I'm a GameObject");
+
+    }
+}
+
+Ha Play módban módosítok, az elveszik!!!! Előbb állítsd majd le.
+
+
+Preferences, Colors-ban pl. a Play mode tint-et átállítható, hogy kiszúrd, play módban vagy.
+
+-------------------------------
+3d-s vektorok
+lásd leírás az anyagban
+
+gömb, vektorok mindíg kifelé mutatnak (derékszög?)
+vektor öösszeadás, hasznos lesz nekünk.
+
+vektor kivonás
+c = a-b (b-ből mutat a felé) (háromszöget alkot, egyik pontból a másik felé megyünk, pl kettő közti távolságnál kell
+
+szorzás
+máshogy is van,de nem tanuljuk
+
+Vektor és skalár (float érték) bemenet, kiköpi a vektort. - nő a hossz
+
+osztás - csökken a hossz
+
+vektor be- szám ki.. hossz megállapítás, minden vektorból össszeáll egy derékszögú háromszög, a2+b2=c2, de Unityben leprogramozva, csak lekérdezzük (magnitude)
+
+vektor ve, vektor ki - normalizálás művelete.   irány, hossz van, normalizál: irányt megtart, de hossza 1 lesz.
+
+2 vektor távolsága - 2 bemenet vektor, a távlság float -- egy kvonás, majd távolság meghat.
+
+
+---------------------------
+
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] Vector3 pos; // ez meg is jelenik a Unity-ben
+
+
+     void Start()
+    {
+        Vector2 v2a = new Vector2(1, 4); // new kulcsszó ha bármit létre akarunk hozni 
+        Vector3 v3a = new Vector3(4, 5, 7.54f); // am,i idáig volt, az primitív típus volt, ez összetett típus
+
+        float f1 = v2a.x; // pont operátorral nyerjük ki az egyik elemet.
+        float f2 = v3a.z;
+
+        // tudjuk, h. transformja mindnek van.
+
+        Transform t = transform; // új típus. Mindíg nagybetű, ha nem primitív típus
+        t.position = v3a;
+
+        void Update() // minden egyes képfrissítésre hívja meg
+        {
+            transform.position = new Vector3(1,2,3);
+        }
+    }
+}
+
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] Vector3 velocity;
+     
+
+    void Update()
+    {
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + velocity;
+        transform.position = newPos;
+    }
+    //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni de ez kis érték
+
+Mi van ha beállítok egy sebességvektort, akkor pont annyi utat tenne meg, ami mindenhol ugyanaz
+nem egyből ugranék, hanem pl 10 részletben tenné, pl 10 frame/sec ideális lenne (egységnyi) - ez lesz a technikánk, lekérdezzük mennyi idő múlt el, és az alapján mozgatunk. 
+
+
+-----------------
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] Vector3 velocity;
+     
+
+    void Update()
+    {
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+
+
+Unity-ben a velocity 1 mp alatt (ha 1-et állítunk)
+
+------------------1
+
+Mozgatás
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] Vector3 velocity;
+     
+
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow);
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+----------
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    [SerializeField] Vector3 velocity;
+     
+
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+-----------------------
+
+void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float y = 0;
+        float x = 0;
+
+        if (up)
+            y = 1;
+        else if (down)
+            y = -1;
+
+        if (left) x = -1;
+        else if (right) x = 1; // right a pozitív, left negatív
+
+        Vector3 velocity = new Vector3(x, y, 0);
+
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+-------------------------
+
+
+ void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float y = 0;
+        float x = 0;
+
+        if (up)
+            y = 1;
+        else if (down)
+            y = -1;
+
+        if (left) x = -1;
+        else if (right) x = 1; // right a pozitív, left negatív
+
+        Vector3 velocity = new Vector3(x, y, 0);
+
+        velocity *= speed;
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+--------------------------
+
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float y = 0;
+    
+        if (up && down)
+            y = 0;
+        else if (up)
+            y = 1; // pozitív az up
+        else if (down)
+            y = -1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            y = 0;
+        else if (left)
+            x -= 1;
+        else if (right) 
+            x += 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+
+        Vector3 velocity = new Vector3(x, y, 0);
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+-------------------------------
+
+több y cseréje rajta állsz
+CTRL + Rés R rename
+
+
+-------------------------------
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = 1; // pozitív az up
+        else if (down)
+            z = -1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x -= 1;
+        else if (right) 
+            x += 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+
+        Vector3 velocity = new Vector3(x, 0, z);
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+
+-------------------
+Ez mind a Mover.cs
+
+----------------------------
+EZ EGY ÚJ ÓRAVÉGI
+
+Ha a movert kikapcsolom az objektumon és ráteszem a kamerára, akkor az mozog.
+
+pubic class LookAt : Monobeh.....
+
+[serializerField] transform = target; // új beállítás target néven. ha ez megvan, le tudom kérdezni a player pozit, saját pozit, stb.
+
+ void update ()
+{
+vector3 targetPosition = target.position;
+vector3 getPosition = transform.position;
+
+vector3 dir =
+
+transform.rotation quaternion.LookRotation ( dir ); // a kamera mindíg középen tartja
+}

@@ -62,7 +62,7 @@ for (int jjj = 1; jjj <= 10; jjj++)
     }
 }
 
-*/
+
 
 
 
@@ -181,4 +181,4 @@ int fpp(int rddd, int codd,int bdd)
 
 
 
-
+*/

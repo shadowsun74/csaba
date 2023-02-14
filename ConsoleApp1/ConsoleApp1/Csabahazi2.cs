@@ -2,7 +2,7 @@
 // Math.Clamp(float, float, float);
 
 
-/*
+
 
 
 float fourth = Clamp1(151, 120, 150);
@@ -56,7 +56,7 @@ Console.WriteLine(ten);
 
 float Round1(float eight)
    {
-    float nine = eight % 1;
+    float nine = eight % 1; // eggeyl osztva megmarad a szám és a maradék
     if (nine < 0.5f)
         {
             return (eight - nine);
@@ -122,7 +122,7 @@ Console.WriteLine($"Legnagyobb közös osztó:{twentythree}");
 int eighteen (int nineteen, int twenty)
     {
     int twentyone;
-    if (nineteen > twenty)      // a tanár itt az if helyett egyszerűen amath.min-t használta
+    if (nineteen > twenty)      // a tanár itt az if helyett egyszerűen a math.min-t használta
         twentyone = twenty/2;
     else
         twentyone = nineteen/2;
@@ -161,7 +161,7 @@ else
 
 int pita (int pitaa, int pitab, int pitac)
     {
-    int atfogo = Math.Max (Math.Max(pitaa, pitab), pitac);    // lesnem kellett hogyan ágyaazuk egymásba
+    int atfogo = Math.Max(Math.Max(pitaa, pitab), pitac);    // lesnem kellett hogyan ágyaazuk egymásba
     int befogo1 = Math.Min(Math.Min(pitaa, pitab), pitac);
     int befogo2 = pitaa + pitab + pitac - atfogo - befogo1;    // miért nincs math alatt közeépső érték?
     if (befogo1 * befogo1 + befogo2 * befogo2 == atfogo * atfogo)
@@ -171,4 +171,3 @@ int pita (int pitaa, int pitab, int pitac)
     return 0;
 }
 
-*/
