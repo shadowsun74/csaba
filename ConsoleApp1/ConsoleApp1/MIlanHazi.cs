@@ -64,6 +64,10 @@ for (int jjj = 1; jjj <= 10; jjj++)
 
 */
 
+
+
+
+// 2. házi
 float clamp(float a, float b, float c)
 {
     if ( a <= b)
@@ -79,14 +83,16 @@ float clamp(float a, float b, float c)
         return a;
     } 
 }
-/*
-float ceiling( float cc)
-{
-    float ww = cc % 1;
-    float kk = cc - ww;
-    kk = kk++;
-}
-*/
+
+// float ceiling( float cc)
+// {
+//     float ww = cc % 1;
+//    float kk = cc - ww;
+//    kk = kk++;
+// }
+
+
+
 float ceiling(float xd)
 {
     float we = xd % 1;
@@ -170,6 +176,7 @@ int fpp(int rddd, int codd,int bdd)
     }
     return 0;
 }
+
 
 
 
