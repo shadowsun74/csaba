@@ -182,3 +182,8 @@ int fpp(int rddd, int codd,int bdd)
 
 
 */
+
+
+// 3. házi
+
+
