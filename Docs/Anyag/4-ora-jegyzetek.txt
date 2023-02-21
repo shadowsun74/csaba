@@ -1,0 +1,1224 @@
+using UnityEngine;
+
+public class WritePrimes : MonoBehaviour
+{
+    [SerializeField] int num = 10;
+
+
+    void Start()
+    {
+        WriteNPrimes(num);
+    }
+
+    // Update is called once per frame
+    void WriteNPrimes(int count)
+    {
+        int found = 0;
+        int i = 2;
+
+        while (found != count)
+        {
+            if (IsPrime(i))
+            {
+                found++;
+                    Debug.Log(i);
+            }
+        }
+
+        // ide kerülne a második szakasz
+        bool IsPrime(int z)
+        {
+            if (z < 2)                                      // 2 alatt nincs prymszám
+                return false;
+
+            float negyzetgyok = Mathf.Sqrt(z);       // z négyzetgyöke, négyzetgyök felett felesleges osztót keresni, (float)-tal átalakítom
+
+            for (int k = 2; k <= negyzetgyok; k++)
+            {
+                if (z % k == 0)
+                    return false;
+
+
+            }
+            return true;
+        }
+    }
+}
+
+---------------------------------------------------
+
+A kamera jobbra előre nem illeszkedik a világ jobbra előre-hez
+globális, lokális
+
+le tudjuk kérni egy transform fő irányát
+
+----------------------
+
+moverbe
+
+
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+    [SerializeField] Transform cameraTransform
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = -1; // pozitív az up
+        else if (down)
+            z = 1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x += 1;
+        else if (right) 
+            x -= 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+        Vector3 rightDir = Vector3.right;
+        Vector3 forwardDir = Vector3.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        Vector3 velocity = rightDir * x + forwardDir * z;
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az előre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+
+    }
+    //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni
+
+
+    /*
+      
+     [SerializeField] Vector3 pos; // ez meg is jelenik a Unity-ben
+
+     void Start()
+    {
+        Vector2 v2a = new Vector2(1, 4); // new kulcsszó ha bármit létre akarunk hozni 
+        Vector3 v3a = new Vector3(4, 5, 7.54f); // am,i idáig volt, az primitív típus volt, ez összetett típus
+
+        float f1 = v2a.x; // pont operátorral nyerjük ki az egyik elemet.
+        float f2 = v3a.z;
+
+        // tudjuk, h. transformja mindnek van.
+
+        Transform t = transform; // új típus. Mindíg nagybetű, ha nem primitív típus
+        t.position = v3a;
+
+        void Update() // minden egyes képfrissítésre hívja meg
+        {
+            transform.position = new Vector3(1,2,3);
+        }
+    }
+    */
+}
+
+ 
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+    [SerializeField] Transform cameraTransform;
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = -1; // pozitív az up
+        else if (down)
+            z = 1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x += 1;
+        else if (right) 
+            x -= 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+        //  Vector3 rightDir = Vector3.right;
+        // Vector3 forwardDir = Vector3.forward;
+
+        Vector3 rightDir = cameraTransform.right;
+        Vector3 forwardDir = cameraTransform.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        // Vector3 velocity = rightDir * x + forwardDir * z;
+        Vector3 velocity = rightDir * x + forwardDir * z;
+        velocity.y = 0;
+
+        // azért csináltuk komplikáltabb módon mert ez az általános megoldás, előállítja a mi irány vektorunkat
+        // Ha kikapcsoljuk a akamera döntését, az kell
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az előre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+
+    }
+    //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni
+
+
+    /*
+      
+     [SerializeField] Vector3 pos; // ez meg is jelenik a Unity-ben
+
+     void Start()
+    {
+        Vector2 v2a = new Vector2(1, 4); // new kulcsszó ha bármit létre akarunk hozni 
+        Vector3 v3a = new Vector3(4, 5, 7.54f); // am,i idáig volt, az primitív típus volt, ez összetett típus
+
+        float f1 = v2a.x; // pont operátorral nyerjük ki az egyik elemet.
+        float f2 = v3a.z;
+
+        // tudjuk, h. transformja mindnek van.
+
+        Transform t = transform; // új típus. Mindíg nagybetű, ha nem primitív típus
+        t.position = v3a;
+
+        void Update() // minden egyes képfrissítésre hívja meg
+        {
+            transform.position = new Vector3(1,2,3);
+        }
+    }
+    */
+}
+
+
+// mover-ben a camera transform be main camera-ra rakom. Azért ment rosszul ellentétes gombokkal, mert ez nem voolt jó	
+
+--------------------------------
+
+using UnityEngine;
+
+public class WritePrimes : MonoBehaviour
+{
+    [SerializeField] int num = 10;
+
+
+    void Start()
+    {
+        WriteNPrimes(num);
+    }
+
+    // Update is called once per frame
+    void WriteNPrimes(int count)
+    {
+        int found = 0;
+        int i = 2;
+
+        while (found != count)
+        {
+            if (IsPrime(i))
+            {
+                found++;
+                    Debug.Log(i);
+            }
+        }
+
+        // ide kerülne a második szakasz
+        bool IsPrime(int z)
+        {
+            if (z < 2)                                      // 2 alatt nincs prymszám
+                return false;
+
+            float negyzetgyok = Mathf.Sqrt(z);       // z négyzetgyöke, négyzetgyök felett felesleges osztót keresni, (float)-tal átalakítom
+
+            for (int k = 2; k <= negyzetgyok; k++)
+            {
+                if (z % k == 0)
+                    return false;
+
+
+            }
+            return true;
+        }
+    }
+}
+
+---------------------------------------------------
+
+A kamera jobbra előre nem illeszkedik a világ jobbra előre-hez
+globális, lokális
+
+le tudjuk kérni egy transform fő irányát
+
+----------------------
+
+moverbe
+
+
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+    [SerializeField] Transform cameraTransform
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = -1; // pozitív az up
+        else if (down)
+            z = 1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x += 1;
+        else if (right) 
+            x -= 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+        Vector3 rightDir = Vector3.right;
+        Vector3 forwardDir = Vector3.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        Vector3 velocity = rightDir * x + forwardDir * z;
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az előre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+
+    }
+    //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni
+
+
+    /*
+      
+     [SerializeField] Vector3 pos; // ez meg is jelenik a Unity-ben
+
+     void Start()
+    {
+        Vector2 v2a = new Vector2(1, 4); // new kulcsszó ha bármit létre akarunk hozni 
+        Vector3 v3a = new Vector3(4, 5, 7.54f); // am,i idáig volt, az primitív típus volt, ez összetett típus
+
+        float f1 = v2a.x; // pont operátorral nyerjük ki az egyik elemet.
+        float f2 = v3a.z;
+
+        // tudjuk, h. transformja mindnek van.
+
+        Transform t = transform; // új típus. Mindíg nagybetű, ha nem primitív típus
+        t.position = v3a;
+
+        void Update() // minden egyes képfrissítésre hívja meg
+        {
+            transform.position = new Vector3(1,2,3);
+        }
+    }
+    */
+}
+
+ 
+
+using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+    [SerializeField] Transform cameraTransform;
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = -1; // pozitív az up
+        else if (down)
+            z = 1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x += 1;
+        else if (right) 
+            x -= 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+        //  Vector3 rightDir = Vector3.right;
+        // Vector3 forwardDir = Vector3.forward;
+
+        Vector3 rightDir = cameraTransform.right;
+        Vector3 forwardDir = cameraTransform.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        // Vector3 velocity = rightDir * x + forwardDir * z;
+        Vector3 velocity = rightDir * x + forwardDir * z;
+        velocity.y = 0;
+
+        // azért csináltuk komplikáltabb módon mert ez az általános megoldás, előállítja a mi irány vektorunkat
+        // Ha kikapcsoljuk a akamera döntését, az kell
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az előre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+
+    }
+    //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni
+
+
+    /*
+      
+     [SerializeField] Vector3 pos; // ez meg is jelenik a Unity-ben
+
+     void Start()
+    {
+        Vector2 v2a = new Vector2(1, 4); // new kulcsszó ha bármit létre akarunk hozni 
+        Vector3 v3a = new Vector3(4, 5, 7.54f); // am,i idáig volt, az primitív típus volt, ez összetett típus
+
+        float f1 = v2a.x; // pont operátorral nyerjük ki az egyik elemet.
+        float f2 = v3a.z;
+
+        // tudjuk, h. transformja mindnek van.
+
+        Transform t = transform; // új típus. Mindíg nagybetű, ha nem primitív típus
+        t.position = v3a;
+
+        void Update() // minden egyes képfrissítésre hívja meg
+        {
+            transform.position = new Vector3(1,2,3);
+        }
+    }
+    */
+}
+
+
+// mover-ben a camera transform be main camera-ra rakom. Azért ment rosszul ellentétes gombokkal, mert ez nem voolt jó	
+
+-------------------------------
+
+z tengely elejeére mutasson az orr
+
+-------------------------------
+Majd ha fizikázunk, egyx objekt colliderét le fogjuk venni...
+
+-------------------------------
+
+GitHub Copilot - első hónap ingyen, utána fizetős, de jobb, mint a beépített AI
+
+
+-------------------------
+
+
+using UnityEngine;
+
+public class follower : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float speed;
+
+    void Update()
+    {
+        Vector3 selfPosition = transform.position;
+        Vector3 targetPosition= target.position;
+
+        Vector3 direction = targetPosition - selfPosition;
+        direction.Normalize();
+
+        Vector3 velocity= direction * speed;
+
+        transform.position = transform.position + velocity * Time.deltaTime;
+    }
+}
+----------------------------------
+
+kövessen csak x és z tengelyen
+először csak vízsintes irány, ha nula, akkor fel, és y irányba megy
+
+----------
+
+
+
+
+using UnityEngine;
+
+public class LookAt : MonoBehaviour
+
+{
+    [SerializeField] Transform target;
+
+    void Update()
+    {
+        Vector3 targetPosition = target.position;
+        Vector3 selfPosition = transform.position;
+
+        Vector3 dir = targetPosition = selfPosition;
+
+        if (dir != Vector3.zero )
+        transform.rotation= Quaternion.LookRotation(dir);
+        
+    }
+}
+------------------------
+Miért remeg rajtunk az ellenfél, javítjuk - ha nagyon közrl van, kis lépések, tllép minket
+minden egyes lépésnél ellenőrizzük, a vektor hossza nagyobb-e amint a távolság köztünk, le kell korlátoznunk
+
+
+using UnityEngine;
+
+public class follower : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float speed;
+
+    void Update()
+    {
+        Vector3 selfPosition = transform.position;
+        Vector3 targetPosition= target.position;
+        /*
+        Vector3 direction = targetPosition - selfPosition;
+        direction.Normalize();
+
+        Vector3 velocity= direction * speed;
+
+        transform.position = transform.position + velocity * Time.deltaTime;
+        */
+
+        transform.position = Vector3.MoveTowards(selfPosition, targetPosition, speed * Time.deltaTime);
+    }
+}
+
+------------------------------------
+
+Forogjon felénk
+
+follower:
+
+using UnityEngine;
+
+public class follower : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float speed;
+
+    void Update()
+    {
+        Vector3 selfPosition = transform.position;
+        Vector3 targetPosition= target.position;
+        
+        Vector3 direction = targetPosition - selfPosition;
+        /*
+        direction.Normalize();
+
+        Vector3 velocity= direction * speed;
+
+        transform.position = transform.position + velocity * Time.deltaTime;
+        */
+
+        transform.position = Vector3.MoveTowards(selfPosition, targetPosition, speed * Time.deltaTime);
+
+        //nem nulla a vektor, mert ezt nem tudja
+        if (direction != Vector3.zero)
+        transform.rotation = Quaternion.LookRotation(direction);
+            // quaternion olyan dolgo ami jól leír a 3d-s térben egy elfordulást
+     
+    }
+}
+
+-----------------
+
+nagyon darabosan mozgunk, legyen simitottabb.
+
+
+
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public class Mover : MonoBehaviour
+{
+    // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
+    [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
+    [SerializeField] Transform cameraTransform;
+    [SerializeField] bool moveInCameraSpace = true;
+    [SerializeField] float angularVelocity = 100;
+    void Update()
+    {
+
+        bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthető
+        bool down = Input.GetKey(KeyCode.DownArrow);
+        bool right = Input.GetKey(KeyCode.RightArrow);
+        bool left = Input.GetKey(KeyCode.LeftArrow);
+        // hogyan csinálunk vektorból egységnyit itt?
+
+        float z = 0;
+    
+        if (up && down)
+            z = 0;
+        else if (up)
+            z = 1; // pozitív az up
+        else if (down)
+            z = -1;
+
+
+        float x = 0;
+       
+        if (right && left)
+            z = 0;
+        else if (left)
+            x -= 1;
+        else if (right) 
+            x += 1; // right a pozitív, left negatív
+
+        // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
+
+        //  Vector3 rightDir = Vector3.right;
+        // Vector3 forwardDir = Vector3.forward;
+
+        Vector3 rightDir = moveInCameraSpace ? cameraTransform.right : Vector3.right;
+        Vector3 forwardDir = moveInCameraSpace ? cameraTransform.forward : Vector3.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        // Vector3 velocity = rightDir * x + forwardDir * z;
+        Vector3 velocity = rightDir * x + forwardDir * z;
+        velocity.y = 0;
+
+        // azért csináltuk komplikáltabb módon mert ez az általános megoldás, előállítja a mi irány vektorunkat
+        // Ha kikapcsoljuk a akamera döntését, az kell
+
+        velocity.Normalize(); // a speed előtt, hogy azt ne normalizálja
+
+        velocity *= speed;
+
+       
+
+        Vector3 p = transform.position;
+
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+
+
+        // if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+          //  transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az előre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(velocity);
+            Quaternion currentRotation = transform.rotation;
+            transform.rotation = Quaternion.RotateTowards(currentRotation, targetRotation, angularVelocity * Time.deltaTime);
+        }
+      
+
+    }
+
+--------------------------------------
+papMover
+akadály
+
+
+
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        Gizmos.color = Color.red;
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+
+--------------------
+a gizmokhoz
+
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = (posA.position + posB.position) / 2;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        Gizmos.color = Color.red;
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+-------------------------------
+
+
+using Unity.VisualScripting;
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+    [SerializeField, Range (0,1)] float startPosition = 0.5f; // range csúszkát ad
+
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = Vector3.Lerp(posA.position, posB.position, startPosition); //  Lerp - linear interpolation (extrapolation).
+        // ezzel rátettem egy csúszkára a 2 db gizmo közé a vonalra, hogy hol legyen az akadály
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        // színek felvétele
+        Color c1 = Color.red;
+        Color c2 = new Color(0, 0, 1); // RGB
+
+        Gizmos.color = Color.Lerp(c1, c2, startPosition); // ezzel a kéát szín között tudunk "váltani"
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+---------------------------------
+
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+    [SerializeField, Range (0,1)] float startPosition = 0.5f; // range csúszkát ad
+
+
+    void Update()
+    {
+        Vector3 direction = posA.position - posB.position;
+        direction.Normalize();
+        // irány előállítás
+        Vector3 velocity = direction * speed;
+        // irányt reprezentáló vektor és hosszból lehet sebesség vektort készíteni
+        transform.position += Time.deltaTime * velocity;    // egyenletes mozgás
+    }
+
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = Vector3.Lerp(posA.position, posB.position, startPosition); //  Lerp - linear interpolation (extrapolation).
+        // ezzel rátettem egy csúszkára a 2 db gizmo közé a vonalra, hogy hol legyen az akadály
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        // színek felvétele
+        Color c1 = Color.red;
+        Color c2 = new Color(0, 0, 1); // RGB
+
+        Gizmos.color = Color.Lerp(c1, c2, startPosition); // ezzel a kéát szín között tudunk "váltani"
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+-----------------------------
+csinálhatnánk úgy is, hogy haladjon egy célig csak
+
+
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+    [SerializeField, Range (0,1)] float startPosition = 0.5f; // range csúszkát ad
+
+
+    void Update()
+    {
+
+        Vector3 targetPosition = posA.position;
+
+        Vector3 nextPosition = Vector3.MoveTowards (transform.position, targetPosition, speed = Time.deltaTime); // a pontból az ektuális célig megyünk csak
+        transform.position = nextPosition;
+
+        if (nextPosition == targetPosition)
+        {
+            targetPosition = posB.position;
+        }
+        
+        Vector3 direction = posA.position - posB.position;
+        direction.Normalize();
+        // irány előállítás
+        Vector3 velocity = direction * speed;
+        // irányt reprezentáló vektor és hosszból lehet sebesség vektort készíteni
+        transform.position += Time.deltaTime * velocity;    // egyenletes mozgás
+    }
+    // ha így hagyjuk, akkor az update a cikluson belül fut le, ezért nem áll majd meg a nextPosition elenére sem. Valami majd kell kívül változó, ami megmarad
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = Vector3.Lerp(posA.position, posB.position, startPosition); //  Lerp - linear interpolation (extrapolation).
+        // ezzel rátettem egy csúszkára a 2 db gizmo közé a vonalra, hogy hol legyen az akadály
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        // színek felvétele
+        Color c1 = Color.red;
+        Color c2 = new Color(0, 0, 1); // RGB
+
+        Gizmos.color = Color.Lerp(c1, c2, startPosition); // ezzel a kéát szín között tudunk "váltani"
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+
+-------------------------------------
+ide-oda megy
+
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+    [SerializeField, Range (0,1)] float startPosition = 0.5f; // range csúszkát ad
+
+    Transform nextTarget; // ez egy filed változó, amíg az itt él, az megmarad folymatosan, ífgy tudjuk kezelni, hogy ne csak belül legyen
+
+
+
+  void Start()
+    {
+        nextTarget = posA;
+    }
+
+
+    void Update()
+    {
+
+        Vector3 targetPosition = nextTarget.position;
+
+        Vector3 nextPosition = Vector3.MoveTowards (transform.position, targetPosition, speed = Time.deltaTime); // a pontból az ektuális célig megyünk csak
+        transform.position = nextPosition;
+
+        if (nextPosition == targetPosition)
+        {
+            if (nextTarget == posA)
+                nextTarget= posB;
+            else
+            {
+                nextTarget= posA;
+            }
+            
+        }
+        
+        Vector3 direction = posA.position - posB.position;
+        direction.Normalize();
+        // irány előállítás
+        Vector3 velocity = direction * speed;
+        // irányt reprezentáló vektor és hosszból lehet sebesség vektort készíteni
+        transform.position += Time.deltaTime * velocity;    // egyenletes mozgás
+    }
+    // ha így hagyjuk, akkor az update a cikluson belül fut le, ezért nem áll majd meg a nextPosition elenére sem. Valami majd kell kívül változó, ami megmarad
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = Vector3.Lerp(posA.position, posB.position, startPosition); //  Lerp - linear interpolation (extrapolation).
+        // ezzel rátettem egy csúszkára a 2 db gizmo közé a vonalra, hogy hol legyen az akadály
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        // színek felvétele
+        Color c1 = Color.red;
+        Color c2 = new Color(0, 0, 1); // RGB
+
+        Gizmos.color = Color.Lerp(c1, c2, startPosition); // ezzel a kéát szín között tudunk "váltani"
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+---------------------------------------------------
+JAVÍTÁS, kihagytunk olyat ami már nem kell
+
+
+using UnityEngine;
+public class papMover : MonoBehaviour
+{
+    [SerializeField] Transform posA, posB;
+    [SerializeField] float speed;
+    [SerializeField, Range (0,1)] float startPosition = 0.5f; // range csúszkát ad
+
+    Transform nextTarget; // ez egy filed változó, amíg az itt él, az megmarad folymatosan, ífgy tudjuk kezelni, hogy ne csak belül legyen
+
+
+
+  void Start()
+    {
+        nextTarget = posA;
+    }
+
+
+    void Update()
+    {
+
+        Vector3 targetPosition = nextTarget.position;
+
+        Vector3 nextPosition = Vector3.MoveTowards (transform.position, targetPosition, speed = Time.deltaTime); // a pontból az ektuális célig megyünk csak
+        transform.position = nextPosition;
+
+        if (nextPosition == targetPosition)
+        {
+            if (nextTarget == posA)
+                nextTarget= posB;
+            else
+            {
+                nextTarget= posA;
+            }
+            
+        }
+        
+        /*
+        Vector3 direction = posA.position - posB.position;
+        direction.Normalize();
+        // irány előállítás
+        Vector3 velocity = direction * speed;
+        // irányt reprezentáló vektor és hosszból lehet sebesség vektort készíteni
+        transform.position += Time.deltaTime * velocity;    // egyenletes mozgás
+        */
+    }
+    // ha így hagyjuk, akkor az update a cikluson belül fut le, ezért nem áll majd meg a nextPosition elenére sem. Valami majd kell kívül változó, ami megmarad
+
+    void OnValidate() //ezt is csak fejelsztésre tudjuk hazsnálni, automatizáció, ami lfut az editorban
+    {
+        transform.position = Vector3.Lerp(posA.position, posB.position, startPosition); //  Lerp - linear interpolation (extrapolation).
+        // ezzel rátettem egy csúszkára a 2 db gizmo közé a vonalra, hogy hol legyen az akadály
+    }
+
+    void OnDrawGizmos()
+    {
+        if (posA == null) return; // ha egyik nincs meg, nem rajzolunk, kilépünk
+        if (posB == null) return;
+
+        // színek felvétele
+        Color c1 = Color.red;
+        Color c2 = new Color(0, 0, 1); // RGB
+
+        Gizmos.color = Color.Lerp(c1, c2, startPosition); // ezzel a kéát szín között tudunk "váltani"
+        
+        Gizmos.DrawSphere(posA.position, 0.1f);
+        Gizmos.DrawSphere(posB.position, 0.1f);
+        Gizmos.DrawLine (posA.position, posB.position);
+    }
+}
+// kellenek majd Gizmo-k ami csak a sceneben jelenik meg a végleges játékban nem
+
+---------------------------------------------
+
+forgatás
+
+
+using UnityEngine;
+
+public class autoRotator : MonoBehaviour
+{
+    [SerializeField] float angularVelocity = 360;
+
+    void Update()
+    {
+        Vector3 eiler = new Vector3 (0, angularVelocity, 0);
+        eiler *= Time.deltaTime; 
+        transform.Rotate(eiler);    
+    }
+
+}
+
+
+-----------------------------------
+
+
+using UnityEngine;
+
+
+public class autoRotator : MonoBehaviour
+{
+    [SerializeField] float angularVelocity = 360;
+    [SerializeField] Vector3 axis = Vector3.up;
+    [SerializeField] Space rotationSpace;
+
+
+    void Update()
+    {
+        Vector3 eiler = new Vector3 (0, angularVelocity, 0);
+        eiler *= Time.deltaTime;
+        // transform.Rotate(eiler, Space.World);   // self, vagy world 
+        // transform.Rotate(eiler, rotationSpace);
+         transform.Rotate (axis, angularVelocity * Time.deltaTime, rotationSpace);
+    }
+    private void OnDrawGizmos()
+    {
+        Vector3 center = transform.position;
+
+        Vector3 dir;
+     //   Vector3 dir = axis.normalized; 
+
+        if (rotationSpace == Space.World)
+        {
+            dir = axis.normalized;
+                }
+        else
+        {
+            dir = transform.TransformDirection(axis).normalized;
+
+        }
+
+        Vector3 a = center + dir * 2;
+        Vector3 b = center + dir * 2;
+        // Vector3 b = center - axis;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(a, b);
+    }
+
+}
+
+---------------------------------------------------
+visszalép a followerre, ha biznyos range-n kívül van akkor ne kövessen benünket.
+
+
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+
+public class follower : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float speed;
+    [SerializeField] float range = 10;
+
+    void Update()
+    {
+        Vector3 selfPosition = transform.position;
+        Vector3 targetPosition= target.position;
+        
+        float distance = Vector3.Distance(selfPosition, targetPosition);
+
+        if (distance <= range)
+
+        // Vector3 direction = targetPosition - selfPosition;
+        /*
+        direction.Normalize();
+
+        Vector3 velocity= direction * speed;
+
+        transform.position = transform.position + velocity * Time.deltaTime;
+        */
+
+        transform.position = Vector3.MoveTowards(selfPosition, targetPosition, speed * Time.deltaTime);
+
+        //nem nulla a vektor, mert ezt nem tudja
+        //if (direction != Vector3.zero)
+        //transform.rotation = Quaternion.LookRotation(direction);
+            // quaternion olyan dolgo ami jól leír a 3d-s térben egy elfordulást
+     
+    }
+}
+
+
+-------------------------------------------
+
+ne hirtelen induljon meg, jöjjön lasdsan, vagy ha közelebb akkor gyorsan jöjjön.
+
+
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+
+public class follower : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float speed;
+    [SerializeField] float bigRange = 15;
+    [SerializeField] float smallRange = 10;
+
+    void Update()
+    {
+        Vector3 selfPosition = transform.position;
+        Vector3 targetPosition= target.position;
+        
+        float distance = Vector3.Distance(selfPosition, targetPosition);
+
+        if (distance <= bigRange)
+        {
+            float t = Mathf.InverseLerp(bigRange, smallRange, distance);
+            float actualSpeed = Mathf.Lerp(0, speed, t);
+
+            transform.position = Vector3.MoveTowards(selfPosition, targetPosition, actualSpeed * Time.deltaTime);
+        }
+
+        // Vector3 direction = targetPosition - selfPosition;
+        /*
+        direction.Normalize();
+
+        Vector3 velocity= direction * speed;
+
+        transform.position = transform.position + velocity * Time.deltaTime;
+        */
+
+       
+
+        //nem nulla a vektor, mert ezt nem tudja
+        //if (direction != Vector3.zero)
+        //transform.rotation = Quaternion.LookRotation(direction);
+            // quaternion olyan dolgo ami jól leír a 3d-s térben egy elfordulást
+     
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, smallRange);
+        Gizmos.DrawWireSphere(transform.position, bigRange);
+    }
+}
+
+// ki is rajzolja a kék köröket

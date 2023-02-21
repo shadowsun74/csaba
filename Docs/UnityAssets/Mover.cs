@@ -1,11 +1,14 @@
 
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Mover : MonoBehaviour
 {
     // [SerializeField] Vector3 velocity; //kikommenteztük mert nem beállításból jön
     [SerializeField] float speed = 5; // ami szerializált field-ek, azok megjelennek az editorban
-
+    [SerializeField] Transform cameraTransform;
+    [SerializeField] bool moveInCameraSpace = true;
+    [SerializeField] float angularVelocity = 100;
     void Update()
     {
 
@@ -36,8 +39,19 @@ public class Mover : MonoBehaviour
 
         // de átlóban sokkal gyorsabb, nem egy, ezért normalizálni kell
 
+        //  Vector3 rightDir = Vector3.right;
+        // Vector3 forwardDir = Vector3.forward;
 
-        Vector3 velocity = new Vector3(x, 0, z);
+        Vector3 rightDir = moveInCameraSpace ? cameraTransform.right : Vector3.right;
+        Vector3 forwardDir = moveInCameraSpace ? cameraTransform.forward : Vector3.forward;
+
+        // Vector3.velocity = new (x, 0, z);
+        // Vector3 velocity = rightDir * x + forwardDir * z;
+        Vector3 velocity = rightDir * x + forwardDir * z;
+        velocity.y = 0;
+
+        // azért csináltuk komplikáltabb módon mert ez az általános megoldás, elõállítja a mi irány vektorunkat
+        // Ha kikapcsoljuk a akamera döntését, az kell
 
         velocity.Normalize(); // a speed elõtt, hogy azt ne normalizálja
 
@@ -50,9 +64,20 @@ public class Mover : MonoBehaviour
         Vector3 newPos = p + (velocity * Time.deltaTime);
         transform.position = newPos;
 
-        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
-        transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az elõre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
 
+        // if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+          //  transform.rotation = Quaternion.LookRotation(velocity); // arra nézzen az elõre, amerre mész. Ezért kellett az orrot  kék nyil irányában létrehozni.
+
+        if (velocity != Vector3.zero) // ugyanaz, mintha a velocity vektor nem egyezik meg a 0, 0, 0 vektorral. If nélkül mindíg visszafordul.
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(velocity);
+            Quaternion currentRotation = transform.rotation;
+            transform.rotation = Quaternion.RotateTowards(currentRotation, targetRotation, angularVelocity * Time.deltaTime);
+        }
+            
+            
+
+        
 
     }
     //ha ezek után beírjuk, hogy y = 0.01, és run, elkezd felfelé menni
