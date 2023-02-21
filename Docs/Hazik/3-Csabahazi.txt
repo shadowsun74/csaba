@@ -1,0 +1,174 @@
+// 3. házi
+/*
+// 1. számjegyösszeg függvény
+szamOsszeg(34675);
+int szamOsszeg(int x)
+{
+    int osszeg = 0;             
+    while (x != 0)           
+    {
+
+        int szamok = x % 10;         // Osztom 10-zel, az utolsó szzám a tizedes tartományva csúszik így át
+        osszeg += szamok;        
+        x /= 10;                    // Levágom az utolsó számjegyet, ismét 10-zel
+    }
+    Console.WriteLine(osszeg);
+    Console.WriteLine("--------------");
+    return osszeg;
+    
+}
+
+// 2. elsõ N prímszám
+
+AmiPrim(12);
+
+void AmiPrim (int y)
+{
+    int darab = 0;
+    for (int i = 0; darab < y; i++)
+    {
+        if (Prim(i))
+        {
+            Console.WriteLine(i);
+            darab++;
+        }
+    }
+}
+
+bool Prim(int z)
+{
+    if (z < 2)                                      // 2 alatt nincs prymszám
+        return false;
+
+    float negyzetgyok = (float) Math.Sqrt(z);       // z négyzetgyöke, négyzetgyök felett felesleges osztót keresni, (float)-tal átalakítom
+
+    for (int k = 2; k <= negyzetgyok; k++)
+    {
+        if (z % k == 0)
+            return false;
+
+
+    }
+    return true;
+}
+*/
+
+
+// 3. komponenst, ami a kurzorgombok lenyomva tartására folyamatosan halad a megfelelõ irányba,
+// A komponensnek be kell állítani egy [SerializeField] változóban egy haladási sebességet. beállított sebeség mértéke: egység / másodperc.
+// Keresztben is lehet haladni, de a sebességet ekkor is tartani kell!
+
+/*
+using UnityEngine;
+public class Mover : MonoBehaviour
+{
+    [SerializeField] float speed = 1;                       
+
+    void Update()
+    {
+        bool up = Input.GetKeyDown(KeyCode.UpArrow);
+        bool down = Input.GetKeyDown(KeyCode.DownArrow);
+        bool right = Input.GetKeyDown(KeyCode.RightArrow);
+        bool left = Input.GetKeyDown(KeyCode.LeftArrow);
+
+        float z = 0;
+
+        if (up && down)                                     // le fel együttes lenyomásnál ne mozogjon
+            z = 0;
+        else if (up)
+            z = 1;                                          // menj felfelé
+        else if (down)
+            z = -1;                                         // menj lefelé
+
+        float x = 0;
+
+        if (right && left)                                  // jobbra balra együttes lenyomásnál ne mozogjon
+            x = 0;
+        else if (left)                                      // menj balra
+            x -= 1;
+        else if (right)                                     // menj jobbra
+            x += 1;
+
+
+        Vector3 velocity = new Vector3(x, 0, z);
+
+        velocity.Normalize();                               // a speed elõtt, hogy azt ne normalizálja, csak a mozgást
+        velocity *= speed;                                  // speed és velocity szorzata a mozgás sebessége
+
+        Vector3 p = transform.position;
+        Vector3 newPos = p + (velocity * Time.deltaTime);
+        transform.position = newPos;
+    }
+}
+
+// 3. feladat - TANÁRI MEGOLDÁS
+// komponenst, ami a kurzorgombok lenyomva tartására folyamatosan halad a megfelelõ irányba,
+// A komponensnek be kell állítani egy [SerializeField] változóban egy haladási sebességet. beállított sebeség mértéke: egység / másodperc.
+// Keresztben is lehet haladni, de a sebességet ekkor is tartani kell!
+
+
+using UnityEngine;
+public class PlayerMover : MonoBehaviour
+{
+    [SerializeField] float speed = 1;
+
+    void Update()
+    {
+        // Input vektor létrehozása 1:
+        Vector3 inputVector1 = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                                                                                                //ennek felel meg: 
+                                                                                                //Vector3 velocity = new Vector3(x, 0, z); 
+                                                                                                // GetAxis - szövegesbõl értelmezi  mit kell
+                                                                                                // figyelnie, az érték -1, +1 közötti (bill,
+                                                                                                // joystick esetén, 0,05f
+                                                                                                // GetAxisRaw = csak egész számok (1, 0, -1)
+        
+        // Input vektor létrehozása 2:
+        float x1 = Input.GetKeyDown(KeyCode.LeftArrow) ? -1 : 0;      // float a 0,05f miatt; --> ? (ha) igen (nyomva van, -1) : (egyébként 0)
+        float x2 = Input.GetKeyDown(KeyCode.RightArrow) ? 1 : 0;      // hasonlóan
+        
+        float z1 = Input.GetKeyDown(KeyCode.DownArrow) ? -1 : 0;      // hasonlóan
+        float z2 = Input.GetKeyDown(KeyCode.UpArrow) ? 1 : 0;         // hasonlóan
+
+        Vector3 inputVector2 = new Vector3(x1 + x2, 0, z1 + z2);      // legyan az inputvector2 értéke (ha mindkettõ lenyomva az nulla
+                                                                      // merrt +1 és -1 az nulla, itt kezeli hogy olyankor NE menjen
+                                                                      // EZ NEM INKBB INPUTVECTOR1???
+        
+        inputVector1 = inputVector1.normalized;                       // normalizáljuk, hogy srégen is 1 hosszakat mehessen, ne legyen gyorsabb
+        
+        // Szorozni kell a beállított sebességgel.
+        // Szorozni kell az Time.deltaTime-el, mert így csak egy frame-nyit lépünk elõre.
+        transform.Translate(inputVector1 * (Time.deltaTime * speed)); // translate = abba az irányba mozgatja el, ahová a translate mutat
+                                                                      // az inputVector1-et szorozzuk a deltával, szorozzuk a sebességgel
+                                                                      // a delta azért kell, hogy minden procinál ugyaolyan gyors legyen 1 mp
+
+    }
+}
+
+
+--------------------------------------- KOMMENTEK MÁSHONNAN (CHAT9 ---------------------------------------
+
+// Minden egyes képfrisstés elõtt van egy update (update-render-update-render-...!
+// Project settings --> Quality --> VSYNC beállítása, a játék a frissítést próbálja szinkroizálni a monitor frissítési sebességéhez
+// Editorban rendelrel más is, így különbözik a végén elért eredménytõl.
+// ködból is állítható az FPS: Application.targetFrameRate = 30;  --> valahol a start.ban meghívod, lehet külön komponens
+// ez a játékben fog korlátozni, illetve az Update sebességét és a Main Camera Render sebességét, nem korlátozza az ablak frissítési sebességét
+
+// Megoldás a "túl magas" FPS-re
+// est kell "Add component"-tel bármilyen game object-re tenni.
+// A Game ablek legördülõben felül, ahol alap esetben "Free Aspect" vagy beállított felbontás van, legyen bepipálva a VSYNC is, az EDIT\
+// Project Settings\Quality\Vsync mindegy mire van állítva
+// https://fraps.com/ ugyan azt adja FPS-re amit beállítottam, nem pörgeti túl a GPU-t
+
+using UnityEngine;                                
+public class FPS : MonoBehaviour   
+{                                                 
+    void Start()                                  
+    {
+       Application.targetFrameRate = Screen.currentResoltion.refreshRate;           
+    }
+}             
+
+// --------------------------------------------------
+
+*/

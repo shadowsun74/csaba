@@ -262,7 +262,7 @@ int pita(int pitaa, int pitab, int pitac)
 
 
 // 3. házi
-
+/*
 // 1. számjegyösszeg függvény
 szamOsszeg(34675);
 int szamOsszeg(int x)
@@ -282,7 +282,7 @@ int szamOsszeg(int x)
 }
 
 // 2. első N prímszám
-/*
+
 AmiPrim(12);
 
 void AmiPrim (int y)
