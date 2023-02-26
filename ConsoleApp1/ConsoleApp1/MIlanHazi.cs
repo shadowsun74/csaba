@@ -185,7 +185,7 @@ int fpp(int rddd, int codd,int bdd)
 
 
 // 3. házi
-
+/*
 
 zoro(25456);
 int zoro(int ho)
@@ -250,3 +250,5 @@ public class Move : MonoBehavior
         transform.Translate(inputvector1* (Time.DeltaTime* speed));
     }
 }
+
+*/
