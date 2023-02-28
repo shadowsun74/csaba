@@ -9,8 +9,26 @@ public class Mover : MonoBehaviour
     [SerializeField] Transform cameraTransform;
     [SerializeField] bool moveInCameraSpace = true;
     [SerializeField] float angularVelocity = 100;
+    [SerializeField] HealthObject healthObject;
+
+        private void OnValidate()
+    {
+        if (healthObject == null)
+        healthObject = GetComponent<HealthObject>();
+    }
+
     void Update()
     {
+        //  if (healthObject.currentHealth <= 0) return;
+
+        if (healthObject != null)
+        {
+            if (!healthObject.IsAlive()) // negálás
+                return;
+        }
+
+       //  if (HealthObject != null && !healthObject.IsAlive())                  // a fenti pontosan ugyanez
+       //     return;
 
         bool up = Input.GetKey(KeyCode.UpArrow); // ez éppen le van nyomva (GetKeyDown), de itt folyamatosat jelent; || Input.GeKey(KeyCode-W); kiegészíthetõ
         bool down = Input.GetKey(KeyCode.DownArrow);
