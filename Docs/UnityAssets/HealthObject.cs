@@ -1,38 +1,54 @@
+using TMPro;
 using UnityEngine;
 
 class HealthObject : MonoBehaviour
 {
-    [SerializeField, Min(1)] int maxHealth = 100;
+    [SerializeField] TMP_Text uiText;
+    [SerializeField] GameObject restartUI;
+    // [SerializeField] Color minColor = Color.red, maxColor = Color.green;
+    [SerializeField] Gradient textColor;
 
-    public int currentHealth; // ez itt az új
+    [SerializeField, Min(1)] int maxHealth = 100;
+    int currentHealth;
 
     void Start()
     {
         currentHealth = maxHealth;
+        UpdateUI();
     }
 
-   public bool IsAlive()
-    { 
-        return currentHealth > 0; 
+    public bool IsAlive()
+    {
+        return currentHealth > 0;
     }
 
     public void Damage(int damage)
     {
-       //  currentHealth -= damage;
+        if (currentHealth <= 0) return;
 
-        if (currentHealth == 0) return; // jvaasolt először a nem megyünk tovább, 4-5 felttel, hoigy ne is fusson, ha a feltétel jó-rossz
-
-        currentHealth = Mathf.Max(currentHealth, 0); // ezzzel egy sorba bele tudjuk tenni if helyett
+        currentHealth = Mathf.Max(currentHealth - damage, 0);
+        UpdateUI();
 
         if (currentHealth <= 0)
         {
-    
-   
             Debug.Log("Good By!");
         }
-            
+    }
+
+    void UpdateUI()
+    {
+        if (uiText == null)
+            return;
+
+        uiText.text = "HP: " + currentHealth;
         
-        // Debug.Log("Aucs!");
+        float t = (float)currentHealth / maxHealth;
+        
+        // uiText.color = Color.Lerp(minColor, maxColor, (float)currentHealth / maxHealth);
+
+        uiText.color = textColor.Evaluate(t);
+
+        restartUI.SetActive(!IsAlive());
+
     }
 }
-

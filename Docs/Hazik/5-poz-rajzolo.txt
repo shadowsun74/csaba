@@ -23,7 +23,7 @@ public class Tester : MonoBehaviour
 }
 
 // VAGY A MÁSIK:
-/*
+
 using UnityEngine;
 
 public class PoseMarker : MonoBehaviour
@@ -32,10 +32,10 @@ public class PoseMarker : MonoBehaviour
     
   void OnDrawGizmos()
   { 
-	  Vector3 p = transform.position;              // Középpont
+	  Vector3 p = transform.position;              // Középpont (lekérjük a saját pozinkat
         
 		// X tengely
-		Gizmos.color = Color.red;                    // Gizmó színe
+    Gizmos.color = Color.red;                    // Gizmó színe
     Vector3 right = length * transform.right;    // Lokális joobbra irány
     Gizmos.DrawLine(p - right, p + right);       // Vonal rajzolása
     Gizmos.DrawSphere(p + right, length);        // Gömb rajzoása 
@@ -55,3 +55,45 @@ public class PoseMarker : MonoBehaviour
 	}
 }
 */
+
+// SULIVERZIO
+
+using UnityEngine;
+
+public class PoseMarker : MonoBehaviour
+{
+  [SerializeField] float length = 0.5f;  // Egy ág hossza
+    
+  void OnDrawGizmos()
+  {
+ Vector3 p = transform.position;
+ Vector3 right = transform.right;
+ Vector3 up = transform.up;
+ Vector3 forward = transform.forward;
+
+ float r = 0.1f * length;
+
+ Gizmos.Color = Color.red;
+ Gizmos.DrawLine(p + right * length), p - right * length)); // vagy  Gizmos.DrawLine(p + right, p - right);
+ Gizmos.DrawSphere(p + right, r); 
+
+
+ Gizmos.Color = Color.green;
+ Gizmos.DrawLine(p + up, p - up);
+ Gizmos.DrawSphere(p + up, r);
+
+ Gizmos.Color = Color.blue;
+ Gizmos.DrawLine(p + forward, p - forward);
+ Gizmos.DrawSphere(p + forward, r);
+  }
+}
+
+// jó, pl. ha irányt akarunk változtatni, pls shooting arc
+// [SerializeField] vector direction
+// Vector3 localV = tansform(x, y, z);
+// Vector3 globalV = transform.TransformDirection(direction);
+//globalV.Normalize();
+// globalV += length;
+
+
+/*

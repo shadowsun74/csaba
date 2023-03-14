@@ -1,9 +1,17 @@
+using TMPro;
 using UnityEngine;
 
-public class Collector : MonoBehaviour
+class Collector : MonoBehaviour
 {
-     int collected = 0;
-   // int currentHealth;
+    [SerializeField] TMP_Text uiText;
+
+
+    int collected = 0;
+
+    void Start()
+    {
+        NewMethod();
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -14,9 +22,15 @@ public class Collector : MonoBehaviour
             collected += c.GetValue();
             Debug.Log(collected);
 
+            NewMethod();
+
             c.Teleport();
         }
     }
 
-
+    void NewMethod()
+    {
+        if (uiText != null)
+            uiText.text = "Score " + collected;
+    }
 }

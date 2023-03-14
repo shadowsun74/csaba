@@ -49,7 +49,7 @@ public class Mover : MonoBehaviour
         float x = 0;
        
         if (right && left)
-            z = 0;
+            x = 0;                      // z=0volt, helyette javítottam X-re
         else if (left)
             x -= 1;
         else if (right) 
