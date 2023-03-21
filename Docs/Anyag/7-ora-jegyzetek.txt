@@ -1,0 +1,1203 @@
+
+//---- unity alapcucc alatt írjuk
+
+//-----NxN
+
+// Ö ezt start-ba tette
+// a sok n-ben a lokális változót használja (mindítg legbelül). Ha serializefield-ben van int n;
+// ha a serializefield n-jét akarjuk belül debugoltatni, akkor a kiíratás this.n (osztály változója)
+// ha statikus int n akkor "class név".n unity-n belül
+// ha statikusból csak egyet hozunk létre, és tudjuk, hogy egy, akkor ezt hazsnáljuk- ugyanúgy lkehetegy metódus is statikus
+// pl MATF-ben statikus fggvények vannak.
+// 
+
+WriteFirstNumbers(int n);
+
+	void WriteFirstNumbers(int n)
+	{
+		int found = 0;
+		
+		for (int i =1; found < n; i++)
+		{
+			int SumOfDigits(int n);
+
+			if (SumOfDigits == n)
+			{
+			found++;
+			Debug.Log(i);	// pl ha itt nem a belső n kell, hanem a serialize (this.n) vagy static (classneve.n)
+			}
+		}
+		
+	}
+
+
+	int SumOfDigits(int n);
+	{
+		int sum = 0;
+
+		while (n != 0)  // az n > 0 mínuszra is érvényes, ezért nem az
+		{
+			int lastDigit = n % 10;
+			sum += lastDigit;
+			n /= 10,
+		}
+		return sum;
+	}
+
+
+//////
+v.Normailze() akkor ezen csinálom		// nem statikus
+float distance = Vector2.Distance(v1, v2);	// statikus
+////
+
+
+// -----------------------------------------
+//TANÁRI VER
+
+using UnityEngine;
+
+public class NTimesN : MonoBehaviour
+{
+    [SerializeField] int n;	// nem része csak bennemaradt
+
+    static int x;		// nem része, csak bennemaradt
+
+    void Start()
+    {
+        WriteFirtsNumbers(n);
+    }
+
+    void WriteFirtsNumbers(int n)
+    {
+        int found = 0;
+
+        Vector2 v1 = new Vector2(2, 4);
+        Vector2 v2 = new Vector2(2, 4);
+
+        v1.Normalize();
+
+        float distance = Vector2.Distance(v1, v2);
+
+
+        for (int i = 1; found < n; i++)
+        {
+            int sumOfDigits = SumOfDigits(i);
+
+            if (sumOfDigits == n)
+            {
+                found++;
+                Debug.Log(i);
+            }
+        }    
+    }
+
+    int SumOfDigits(int n)
+    {
+        int sum = 0;
+
+        while (n != 0)
+        {
+            int lastDigit = n % 10;
+            sum += lastDigit;
+            n /= 10;
+        }
+        return sum;
+    }
+}
+
+-----------------------------------------------------------------------
+Köv feladat:
+
+PREFERENCES: EXTERNAL EDITOR BEÁLLÍTÁS HA HIBÁVAL SZÁLL EL A UNITY!!!!!!!!!!!!!!!!!
+
+--------------
+
+HUF-os példa átbeszélése
+
+-------
+Ebből valami újat tanulunk
+-------------------------------------------
+
+
+using UnityEngine;
+
+class NotesAndCoins : MonoBehaviour
+{
+    [SerializeField] int amount = 10000;	// ami a gámában beírok, 
+    [SerializeField] int notesAndCoins;		// azt itt egyből adja vissza (mert onvalidate-be dologozunk, s onvalidate
+						// bármilyen változás esetén validál (erre jó)
+
+    void OnValidate()
+    {
+        notesAndCoins = HowManyNotes(amount);
+    }
+
+
+    readonly int[] notes =			// readonly beírásával lockoltam (tömbnél, változónál "const" float pi=3.14f)
+        {20000,10000,5000,2000,1000,500,200,100,50,20,10,5,2,1};
+    // (a readonly nem kötelező)
+
+    int HowManyNotes(int num)
+    {
+        int result = 0;
+        for (int i = 0; i < notes.Length; i++)
+        {
+            int noteValue = notes[i];
+            result += num / noteValue;
+            num = num % noteValue;
+        }
+
+        // (foreach ciklus is használható for helyett), ezt kijelöléssel, és ajánlatkéréssellehet megkérni a VS-ben. kiseréli
+        return result;
+    }
+}
+
+
+--------------------------------------------------------
+// for listából törlés vezélyes - tömb fix elemű, list változtatható hosszú, a kkveszünk, csökken a tömb elemek száma, már 
+// pl nem mas index lesz, hanem kette, mert a 3-mast töröltük. Hátulró megyünk végig, ha ki akarunk belőle elemeket venni
+// CLICK ACTIONS a felajánlás (reverse)
+for (.... notes.length-1;.. i--)
+
+END előző-------------------------------------------------------
+
+Tömb átlaga
+
+-------------------------------------------
+Ugyanaz amit néztünk, csak forch-al rövidebben
+foreach (float n in array)
+	{
+		mean += n;
+	}
+
+mean /= array.length;
+
+
+---------------------------------------
+
+TANÁRI
+
+------
+using UnityEngine;
+
+class MeanOfArray : MonoBehaviour
+{
+    [SerializeField] float[] floats;
+    [SerializeField] float mean;
+
+    void OnValidate()
+    {
+        mean = Mean(floats);
+    }
+
+
+
+    float Mean(float[] array) 
+    {
+        float mean = 0;
+
+        foreach (float n in array)
+        {
+            mean += n;
+        }
+
+        mean /= array.Length;
+
+        return mean;    
+    }
+
+}
+----------------------------
+-----------------
+
+Windows rendering linghting - e3nvironment fülön Skybox mat - none
+
+Assetekhez bemásoljuka képeket (háttér)
+
+Textture type - sprite
+
+
+Sprite renderer - spreiute-re hűz be képet
+Tile Mode - continuous
+W: 200. H: 40
+
+KÉP
+
+-----------
+
+spaceship üreg game objectbe, mögötte van, z -0,5. vagy sorting order
+
+-------------
+
+Mozgunk űrhajóval
+-----------------
+
+
+using UnityEngine;
+
+public class Spaceship : MonoBehaviour
+{
+
+    void Update()
+    {
+        Vector2 velocity = new Vector2(1, 2);
+
+
+
+
+
+        transform.position += (Vector3)(velocity * Time.deltaTime);     // muszáj átkonvertálni
+    }
+}
+----------------------------
+
+
+
+using UnityEngine;
+
+public class Spaceship : MonoBehaviour
+{
+
+    [SerializeField] float acceleration = 1;
+
+    Vector2 velocity;       // áttettük osztályváltozóba, de nem történne semmi
+
+    void Update()
+    {
+
+
+
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);    // 3d lenne, ezt átlakítottuk 2d-re, zárójelbe téve, hogy 4 szorzás helyett 3 legyen - egyenletes gyorsulás
+        }
+
+         transform.position += (Vector3)(velocity * Time.deltaTime);     // muszáj átkonvertálni
+    }
+}
+
+-------------------- ha elforgatom, akkor ő más irányba fog menni, mert qa saját felfeléje és nem globális felfeléje van
+
+
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public class Spaceship : MonoBehaviour
+{
+
+    [SerializeField] float acceleration = 1;
+    [SerializeField] float angularSpeed = 100;      // fokban várja
+
+    Vector2 velocity;       // áttettük osztályváltozóba, de nem történne semmi
+
+    void Update()
+    {
+
+
+
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);    // 3d lenne, ezt átlakítottuk 2d-re, zárójelbe téve, hogy 4 szorzás helyett 3 legyen - egyenletes gyorsulás
+        }
+
+         transform.position += (Vector3)(velocity * Time.deltaTime);     // muszáj átkonvertálni
+
+        float rotate = Input.GetAxis("horizontal"); // figyelnio fog a WASD-re
+
+        transform.Rotate(new Vector3(0, 0, rotate * angularSpeed * Time.deltaTime));
+    }
+}
+
+
+-----------------
+
+TANÁRI KÖZSBŐL UE.
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 1;
+    [SerializeField] float angularSpeed = 360;
+
+    Vector2 velocity;
+
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.UpArrow)) 
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);
+        }
+
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, rotate * angularSpeed * Time.deltaTime));
+    }
+
+}
+
+
+---------------------
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 1;
+    [SerializeField] float angularSpeed = 200;
+
+    Vector2 velocity;
+
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);
+        }
+
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+
+----------------------------------
+
+SPACESHIP ORDER IN LAYER 1 hogy ne tünjön el, a kamerához állítva z értékkel ahogy távolodik, távolodik akam-tól is és eltunhet
+----------------------------------
+
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 3;
+    [SerializeField] float angularSpeed = 200;
+    [SerializeField] float drag = 1;                // közegellenállás
+
+    Vector2 velocity;
+
+    void Update()
+    {
+        //gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);
+        }
+        
+        //közegellenállás (lassítás)
+        velocity -= velocity * (drag * Time.deltaTime);
+
+
+        // mozgás
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        //forgás
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+
+// a drag ezzel gyakorlatilag végsebességet is ad, nem tudunk gyorsulni, ezáltal van maximális sebesség
+//Drag: 0,65, Acceleration: 20. Angular Speed 200 --> play alatt a "spaceship komponensen jobbgomb copy componenet
+//leállít majd paste component values, ezzel lehet átmenteni
+//(jobbgomb - copy component, paste component values)
+----------------------------------------------------
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 3;
+    [SerializeField] float angularSpeed = 200;
+    [SerializeField] float drag = 1;                // közegellenállás
+    [SerializeField] float maxSpeed = 5;
+
+    Vector2 velocity;
+
+    void Update()
+    {
+        //gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.deltaTime);
+
+            if (velocity.magnitude > maxSpeed)                                      // vektor hossza (magnitude) nagyobb-e mint maximális sebesség
+            {
+                velocity.Normalize();                   // velocity = velocity.normalized * maxSpeed; másik megoldás (ez nem normalizál, hanem lekéri  normalizáltat és szorozza egy sorban)
+                velocity *= maxSpeed;
+            }
+        }
+        
+        //közegellenállás (lassítás)
+        velocity -= velocity * (drag * Time.deltaTime);
+
+
+        // mozgás
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        //forgás
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+
+-------------------------------------
+JÖN ALUL :FIXED UPDATE sima UPDATE helyett (fix idő alatt tutira, fizikai szim-hez ezt érdemes használni.
+OLVASD el anyagban
+
+------------------------------
+
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 3;
+    [SerializeField] float angularSpeed = 200;
+    [SerializeField] float drag = 1;                // közegellenállás
+    [SerializeField] float maxSpeed = 5;
+
+    Vector2 velocity;
+
+    void FixedUpdate()                  // ez segít fix időben kezelni mindent, de itt ne jó a time.DeltaTime
+    {
+        //gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.fixedDeltaTime);
+
+            if (velocity.magnitude > maxSpeed)                                      // vektor hossza (magnitude) nagyobb-e mint maximális sebesség
+            {
+                velocity.Normalize();                   // velocity = velocity.normalized * maxSpeed; másik megoldás (ez nem normalizál, hanem lekéri  normalizáltat és szorozza egy sorban)
+                velocity *= maxSpeed;
+            }
+        }
+        
+        //közegellenállás (lassítás)
+        velocity -= velocity * (drag * Time.deltaTime);
+
+
+        // mozgás
+        transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
+
+        //forgás
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.fixedDeltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+
+---------------------------
+
+Project settings - time alatt állítható a fix idő
+
+----------------------------
+Egy része kell fixed, a mozgás nem javasolt
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 3;
+    [SerializeField] float angularSpeed = 200;
+    [SerializeField] float drag = 1;                // közegellenállás
+    [SerializeField] float maxSpeed = 5;
+
+    Vector2 velocity;
+
+    void FixedUpdate()                  // ez segít fix időben kezelni mindent, de itt ne jó a time.DeltaTime
+    {
+        //gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.fixedDeltaTime);
+
+            if (velocity.magnitude > maxSpeed)                                      // vektor hossza (magnitude) nagyobb-e mint maximális sebesség
+            {
+                velocity.Normalize();                   // velocity = velocity.normalized * maxSpeed; másik megoldás (ez nem normalizál, hanem lekéri  normalizáltat és szorozza egy sorban)
+                velocity *= maxSpeed;
+            }
+        }
+
+        //közegellenállás (lassítás)
+        velocity -= velocity * (drag * Time.fixedDeltaTime);
+
+    }
+    void Update()
+    {
+        // mozgás
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        //forgás
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+-------------------------------
+
+BOOST
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 3;
+    [SerializeField] float angularSpeed = 200;
+    [SerializeField] float drag = 1;                // közegellenállás
+    [SerializeField] float maxSpeed = 5;
+    [SerializeField] float boostSpeed = 5;          // egyszeri boost (max speed okozhat problémát, ha benyomjuk pl 2 mp-re kapcsoljuk ki a max spped-et
+
+    Vector2 velocity;
+
+    void FixedUpdate()                  // ez segít fix időben kezelni mindent, de itt ne jó a time.DeltaTime
+    {
+        //gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.fixedDeltaTime);
+
+            if (velocity.magnitude > maxSpeed)                                      // vektor hossza (magnitude) nagyobb-e mint maximális sebesség
+            {
+                velocity.Normalize();                   // velocity = velocity.normalized * maxSpeed; másik megoldás (ez nem normalizál, hanem lekéri  normalizáltat és szorozza egy sorban)
+                velocity *= maxSpeed;
+            }
+        }
+
+        //közegellenállás (lassítás)
+        velocity -= velocity * (drag * Time.fixedDeltaTime);
+
+        //Dash
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            velocity *= (vector2)transform.up * boostSpeed;
+        }
+
+    }
+    void Update()
+    {
+        // mozgás
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        //forgás
+        float rotate = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));       // - rotate, mert fordítve adta a gombokra a hatást
+    }
+
+}
+
+---- getkeydown pillanatnyi esemény, lassaban történik, ezért nem mindí működik  GETKEYDOWN
+
+------------
+
+VÉGLEGES VERZIÓ
+
+using UnityEngine;
+
+class Spaceship : MonoBehaviour
+{
+    [SerializeField] float acceleration = 1;
+    [SerializeField] float angularSpeed = 360;
+    [SerializeField] float drag = 1;
+    [SerializeField] float maxSpeed = 5;
+    [SerializeField] float boostSpeed = 5;
+
+    Vector2 velocity;
+
+    void FixedUpdate()
+    {
+        // Gyorsítás
+        if (Input.GetKey(KeyCode.UpArrow)) 
+        {
+            velocity += (Vector2)transform.up * (acceleration * Time.fixedDeltaTime);
+
+            if (velocity.magnitude > maxSpeed) 
+            {
+                // A
+                velocity.Normalize();
+                velocity *= maxSpeed;
+
+                // B
+                // velocity = velocity.normalized * maxSpeed;
+            }
+        }
+
+        // Lassítás (Közegellenállás)
+        velocity -= velocity * (drag * Time.fixedDeltaTime);
+
+    }
+
+    void Update()
+    {
+        // Dash
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            velocity += (Vector2)transform.up * boostSpeed;
+        }
+
+        // Mozgás
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+
+        //Forgás
+        float rotate = Input.GetAxis("Horizontal");
+        transform.Rotate(new Vector3(0, 0, -rotate * angularSpeed * Time.deltaTime));
+    }
+
+}
+
+--------------
+SZÜNET
+-----------------
+
+Kamerta follow
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+   
+    
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - target.position;
+    }
+
+
+    void Update()
+    {
+        transform.position = target.position + offset;
+    }
+}
+
+
+
+---------------
+
+ez a jó (EZ A VÉGE AMI MIMINEK KELL)
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+
+
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - target.position;
+    }
+
+
+    void Update()
+    {
+        transform.position = target.position + offset;
+    }
+}
+
+---------------------
+
+ÍGY KEZDTE? DE NEM FEJEZTE BE-...
+
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float range;
+
+
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - target.position;
+    }
+
+
+    void Update()
+    {
+        Vector3 offsetedPosition = transform.position + offset;
+        float distance = Vector3.Distance(offsetedPosition, target.position);
+
+        transform.position = target.position + offset;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(target.position, range);  /// csak akkor kövessük ha a körből kilépett
+    }
+}
+
+
+
+--------------,Máshogy, most épp ezt csinálja
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float range;
+
+
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - target.position;
+    }
+
+
+    void Update()
+    {
+        Vector3 offsetedPosition = transform.position + offset;
+
+        Vector3 difference = target.position - offsetedPosition;
+        float distance = difference.magnitude;
+        if (distance > range) 
+        {
+            Vector3 dir= difference.normalized;
+            float length = distance - range;
+            transform.position += dir * length;
+        }
+
+
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 offsetedPosition = transform.position + offset;
+        Gizmos.DrawWireSphere(target.position, range);  /// csak akkor kövessük ha a körből kilépett
+    }
+}
+
+
+-------------------
+
+KÖZÖSBŐL
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float range;
+   
+    
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - target.position;
+    }
+
+
+    void Update()
+    {
+        Vector3 offsetedPos = transform.position + offset;
+
+        Vector3 difference = target.position - offsetedPos;
+        float distance = difference.magnitude;
+        if (distance > range) 
+        {
+            Vector3 dir = difference.normalized;
+            float length = distance - range;
+
+            transform.position += dir * length;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 offsetedPos = transform.position + offset;
+        Gizmos.DrawWireSphere(offsetedPos, range);
+    }
+}
+
+-----------------------------------------------
+
+A KÖRÍVEN BELÜL NEM KÖVETI? KÍVÜL KÖVETI
+
+using UnityEngine;
+
+class FollowerCamera : MonoBehaviour
+{
+    [SerializeField] Transform target;
+    [SerializeField] float range;
+
+
+    Vector3 offset;
+
+    void Start()
+    {
+        offset = target.position - transform.position;
+    }
+
+
+    void Update()
+    {
+        Vector3 offsetedPos = transform.position + offset;
+
+        Vector3 difference = target.position - offsetedPos;
+        float distance = difference.magnitude;
+        if (distance > range)
+        {
+            Vector3 dir = difference.normalized;
+            float length = distance - range;
+
+            transform.position += dir * length;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 offsetedPos = transform.position + offset;
+        Gizmos.DrawWireSphere(offsetedPos, range);
+    }
+}
+
+----------------------------------------
+BoxColliderAutoSize:
+
+using UnityEngine;
+
+[RequireComponent(typeof(BoxCollider2D), typeof(SpriteRenderer))]
+class BoxColliderAutoResizer : MonoBehaviour
+{
+    [SerializeField] BoxCollider2D boxCollider;
+    [SerializeField] SpriteRenderer spriteRenderer;
+
+    void OnValidate()
+    {
+        if (boxCollider == null)
+            boxCollider = GetComponent<BoxCollider2D>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void Update()
+    {
+        boxCollider.size = spriteRenderer.size;
+    }
+
+}
+
+
+----------------------------
+
+
+
+using UnityEngine;
+
+[ExecuteAlways]                                                     // mindíg fusson
+[RequireComponent(typeof(BoxCollider2D), typeof(SpriteRenderer))]
+class BoxColliderAutoResizer : MonoBehaviour
+{
+    [SerializeField] BoxCollider2D boxCollider;
+    [SerializeField] SpriteRenderer spriteRenderer;
+
+    void OnValidate()
+    {
+        if (boxCollider == null)
+            boxCollider = GetComponent<BoxCollider2D>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void Update()
+    {
+        boxCollider.size = spriteRenderer.size;
+    }
+
+}
+
+---------------------
+
+
+
+using UnityEngine;
+
+[ExecuteAlways]                                                     // mindíg fusson
+[RequireComponent(typeof(BoxCollider2D), typeof(SpriteRenderer))]
+class BoxColliderAutoResizer : MonoBehaviour
+{
+    [SerializeField] BoxCollider2D boxCollider;
+    [SerializeField] SpriteRenderer spriteRenderer;
+
+    void OnValidate()
+    {
+        if (boxCollider == null)
+            boxCollider = GetComponent<BoxCollider2D>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+
+    private void Start()
+    {
+        if (Application.isPlaying) // ha fut, akkor csinálja
+        Destroy(this);          // megsemmisítés (this= komponens, this.gameobject - a játékobjektumot is törli- Azért, hogy ez játékon kívülről létezzen, utána kuka
+    }
+
+    void Update()
+    {
+        boxCollider.size = spriteRenderer.size;
+    }
+
+}
+
+// Játékon kívül Box Collidert automatikusan ráköti
+---------------------------------------------
+
+SZÜNET
+
+-----------------------------------------------
+
+create 2d material physics material 2d
+rá kell húzni a játékosra, pattogást lehet állítani
+
+
+-----------------
+
+PlatformPlayer
+
+
+using UnityEngine;
+
+public class PlatformerPlayer : MonoBehaviour
+{
+    [SerializeField] Rigidbody2D rB;
+        [SerializeField] float jumpSpeed;
+
+
+    void onValidate()
+    {
+        if (rB == null)
+            rB = GetComponent<Rigidbody2D>();   
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rB.velocity = Vector2.up * jumpSpeed
+        }
+    }
+}
+
+-----------------------
+
+
+using UnityEngine;
+
+public class PlatformerPlayer : MonoBehaviour
+{
+    [SerializeField] Rigidbody2D rB;
+        [SerializeField] float jumpSpeed;
+
+
+    void onValidate()
+    {
+        if (rB == null)
+            rB = GetComponent<Rigidbody2D>();   
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector2 velocity = rB.velocity;
+            velocity.y = jumpSpeed;
+
+            rB.velocity = velocity;
+        }
+    }
+}
+
+------------------
+
+EZ A JÓ, ELŐZŐ KÉRDÉSS
+
+using UnityEngine;
+
+class PlatformerPlayer : MonoBehaviour
+{
+    [SerializeField] Rigidbody2D rb;
+    [SerializeField] float jumpSpeed;
+
+    bool grounded = false;
+
+    void OnValidate()
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        // Jump
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (grounded)
+            {
+                Vector2 velocity = rb.velocity;
+                velocity.y = jumpSpeed;
+                rb.velocity = velocity;
+            }
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        grounded = true;
+
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        grounded = false;
+    }
+}
+
+
+------------------------------------
+
+using UnityEngine;
+
+class PlatformerPlayer : MonoBehaviour
+{
+    [SerializeField] Rigidbody2D rb;
+    [SerializeField] float jumpSpeed = 6;
+    [SerializeField, Min(0)] int airJumpCount = 1;
+
+    bool grounded;
+    int airJumpBudget;
+
+    void OnValidate()
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        // Jump
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (grounded || airJumpBudget > 0)
+            {
+                Vector2 velocity = rb.velocity;
+                velocity.y = jumpSpeed;
+                rb.velocity = velocity;
+
+                if (!grounded)
+                    airJumpBudget--;
+            }
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        grounded = true;
+        airJumpBudget= airJumpCount;
+
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        grounded = false;
+    }
+}
+
+
+
+----------------
+
+TANÁRI:
+
+using UnityEngine;
+
+class PlatformerPlayer : MonoBehaviour
+{
+    [SerializeField] Rigidbody2D rb;
+    [SerializeField] float jumpSpeed = 10;
+    [SerializeField, Min(0)] int airJumpCount = 1;
+
+    bool grounded;
+    int airJumpBudget;
+
+    void OnValidate()
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        // Jump
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (grounded || airJumpBudget > 0)
+            {
+                Vector2 velocity = rb.velocity;
+                velocity.y = jumpSpeed;
+                rb.velocity = velocity;
+
+                if (!grounded)
+                    airJumpBudget--;
+            }
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        grounded = true;
+        airJumpBudget = airJumpCount;
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        grounded = false;
+    }
+}
+
+---------------
+VÉGE
+
+
+
+
+
+
+
+
+
+
+
