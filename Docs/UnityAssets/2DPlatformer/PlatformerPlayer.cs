@@ -3,8 +3,10 @@ using UnityEngine;
 class PlatformerPlayer : MonoBehaviour
 {
     [SerializeField] Rigidbody2D rb;
-    [SerializeField] float jumpSpeed = 6;
+    [SerializeField] float jumpSpeed = 10;
     [SerializeField, Min(0)] int airJumpCount = 1;
+    [SerializeField] float movementSpeed;
+    [SerializeField] Vector2 gravity = new Vector2(0, -9.81f);
 
     bool grounded;
     int airJumpBudget;
@@ -32,11 +34,22 @@ class PlatformerPlayer : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        float x = Input.GetAxis("Horizontal");
+
+        Vector2 velocity = rb.velocity;
+        velocity.x = x * movementSpeed;
+        rb.velocity = velocity;
+
+        rb.velocity += gravity * Time.fixedDeltaTime;                         // ez lett a saját gravitáció  - azért += mert fent negatív a gravitáció megadott iránya
+
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         grounded = true;
-        airJumpBudget= airJumpCount;
-
+        airJumpBudget = airJumpCount;
     }
 
     void OnCollisionExit2D(Collision2D collision)
@@ -44,5 +57,3 @@ class PlatformerPlayer : MonoBehaviour
         grounded = false;
     }
 }
-
-
