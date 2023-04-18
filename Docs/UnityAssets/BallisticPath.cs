@@ -7,6 +7,7 @@ class BallisticPath : MonoBehaviour
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] float speed = 10;
     [SerializeField, Min(0)] float simulationTime = 1;
+    [SerializeField] LayerMask rayCastMask;                 // ezzel felvettem a layer maskot (rossz típust adok meg, mégse problémázik lent
 
     void Update()
     {
@@ -32,7 +33,7 @@ class BallisticPath : MonoBehaviour
             Vector3 dir = position - lastPosition;
             Ray ray = new(lastPosition, dir);
 
-            bool isHit = Physics.Raycast(ray, out RaycastHit hitInfo, dir.magnitude);
+            bool isHit = Physics.Raycast(ray, out RaycastHit hitInfo, dir.magnitude, rayCastMask);  // ha felé megyek, kiírja mi lehet, de mégem problémázik
             if (isHit)
             {
                 points.Add(hitInfo.point);

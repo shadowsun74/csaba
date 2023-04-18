@@ -27,7 +27,6 @@ class PlatformerPlayer : MonoBehaviour
                 Vector2 velocity = rb.velocity;
                 velocity.y = jumpSpeed;
                 rb.velocity = velocity;
-		rb.freezeRotation = true;
 
                 if (!grounded)
                     airJumpBudget--;

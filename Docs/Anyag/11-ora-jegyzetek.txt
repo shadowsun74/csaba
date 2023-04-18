@@ -1,0 +1,698 @@
+// ---------------------------- 11. óra -----------------------------
+
+// --------- Ismétlés - kiegészítő információk -------------
+
+// Rigidbody - rigidbody2d --soha nem találja meg egymást
+// OnTriggerStay - fixed update-enként hívódik
+// getKeyDown - fixed update alat
+// onTriggerEnter-t nem tudunk figyelni, pl. fixed update-ben, csak egyszeri (???)
+// legalább egy script kell az ontrigger enter (monobehaviour), 2 collider kell, legalább 1 rigidbody-nak
+//...kell lennie, különben nem ér semmit az ontriggerenter, és legalább egy trigger bakapcs kell, hogy legyen
+
+// project setting / fizika / collision mask (alapból 0-5 réteg, 3-mas nincs, 31-ig leher rétegelni, pl csinál
+// ... egy ground réteget). Kioptimalizált, ez a leggyorsabb megoldás. pl: még egy layer, bullet - és a projekt
+// settingsben a bullet és ground em tud érintkezni (Collision matrix)
+
+// mire jó még a layer. Pl: kamera, melyik layereket jelenítsünk meg.. csak azt rendereli.
+// raycast-nál. Layer mask raycasthoz, beállítjuk melyik layerre megy, mire nem és azt nem találja el
+
+// ------------------------- PL: BaliisticPath-nál: Layer mask ----------------------
+
+
+using System.Collections.Generic;
+using UnityEngine;
+
+[ExecuteAlways]
+class BallisticPath : MonoBehaviour
+{
+    [SerializeField] LineRenderer lineRenderer;
+    [SerializeField] float speed = 10;
+    [SerializeField, Min(0)] float simulationTime = 1;
+    [SerializeField] LayerMask rayCastMask;                 // ezzel felvettem a layer maskot (rossz típust adok meg, mégse problémázik lent
+
+    void Update()
+    {
+        Vector3 position = transform.position;
+        Vector3 startDirection = transform.up;
+
+        Vector3 gravity = Physics.gravity;
+        float deltaT = Time.fixedDeltaTime;
+
+        Vector3 velocity = startDirection * speed;
+        float time = 0;
+
+        List<Vector3> points = new List<Vector3>();
+        points.Add(position);
+
+        while (time < simulationTime)
+        {
+            Vector3 lastPosition = position;
+
+            position += velocity * deltaT;
+            velocity += gravity * deltaT;
+
+            Vector3 dir = position - lastPosition;
+            Ray ray = new(lastPosition, dir);
+
+            bool isHit = Physics.Raycast(ray, out RaycastHit hitInfo, dir.magnitude, rayCastMask);  // ha felé megyek, kiírja mi lehet, de mégem problémázik
+            if (isHit)
+            {
+                points.Add(hitInfo.point);
+                break;
+            }
+            else
+            {
+                points.Add(position);
+            }
+
+            time += deltaT;
+        }
+
+        lineRenderer.positionCount = points.Count;
+        lineRenderer.SetPositions(points.ToArray());
+    }
+}
+
+// --------------------------------------------------------------------------------------
+
+// Innentől belül tudok layerrel játsszani, mit találjon el, mit nem
+// miért csak0-31-ig, 5-öt elhasznál Unity (32 réteg)?
+// INT - egész számot 32 biten tárol el
+// Ábrázolás 2-es számrendszerben 1 = ...0001, 2 = 0010, 3 = 0011.... UNITY: 1 = ..0001, 2 = ..0010, 3 = ..0100
+// azért van, mert layer mask kell - megmondom, melyik layer maskok vannak benne, pl: 1 és 3... = 0101 itt így használja
+// persze ez nem kettes számrendszer, csak hasonlít hozzá
+// 000 1 000 1 000 - maszk
+// 000 1 000 0 000 - layer
+// 000 1 000 0 000 - és, eredmény, benne van-e a réteg maskban
+// nagyon gyorsan tud ezzel így dolgozni
+// Line Renderer-t átnézni
+// Sorting Layer - 2D (ha ugyanott vannak de elfordítom a kamerát, akkor a középpontja a kamerához mérten változik
+// ezért kell az ordering layer, hogy ne legyen ilyen probléma. Sorting Layernek nincs köze a layerhez, más funció
+// Tags & Layers - Ispectorból lehet elérni, taggelni, de nem javasolja, inkább hozzuk létre kódból ha kell
+
+//-------------------------------------------------------------------------------------------
+//----------------------------Folytassuk a kiérdezést-----------------------------
+
+// Rigidbody is létezik collider nélkül és fordítva is, ha kódból oldjuk meg
+// nincs pl. gameobject.getchildren, hanem gameobject.transform.getchildren, ha neten kutatgatunk
+// renderer - 3 féle, mesh renderer - line renderer - sprite renderer
+// ALAP (empty game object) - felépítem innen --> mesh renderer (ez adja a materialt később)
+// de  + mesh filter (itt tudok mesh-t betölteni)
+// mesh collider - joker colider - a mesh renderer-t ez tudja betölteni, hogy pontosan megoldja, de nem optimális
+// Terrain esetében kell pl mesh collider, vagy ha vlami nagyon rézletes, inkább statikusoknál hazsnálják
+// kivéve ha beépített terrain, az megoldja megának
+// Audio Listener (elvileg ma tanuljuk)
+------------------------------ennyit a komponensekről -----------------------------------
+
+----------------------------------- MONOBEHAVIOUR-ok---------------------------------
+
+// start - amikor létrejön az objektum. Ha menetközben, akkor akkor. NEM induláskor, így kell értelmezni
+// update, fixed update, LateUpdate() (fixed update után, utána van renderelés )
+// odébbmegy, ránéz renderelés - ok, utánna nézzünk rá, ránéz, odébbmegy, renderelés - NEM OK
+// ontriger.... oncollision.... (pl. enter) és a 2d verzióik
+// ondrawgizmos - mindíg. Ondrawgizmosselected - csak ha a hierarchiában ki van jelölve
+// onvalidate - akkkor fut, ha módosítunk valamin a beállításokban pl bent a scene-n
+// anyagok között van: Segédletek (monobehaviour, puska - monobeaviour alatt és elmélet ágban is
+// awake: olyan, mint a start, akkor fut le (fenti listában benne van)
+
+// serializefield, transofrm tárgy bekötés, így csak oda kellett húzni, egyébként getcomponent
+// getcomponentinchildren, getcomponentinparent --> többes számú változatok mindháromnál, de más tipust ad vissza
+// components - tömböt ad vissza
+// findobjectoftype, findobjectsoftype - ezzel is hozzáfértünk, ha típusra keresünk
+
+
+// ---------------------------------ÓRAI ANYAG ----------------------------------
+
+public class TestClass
+{
+
+}
+
+// hiába hoztuk létre, nem lehet hozzáadni, mert nem monobehaviour
+//-------------------------------------------------------------------------
+
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+
+    void Start()
+    {
+        
+    }
+
+// ez már igen
+
+//-------------------------------------------------------------------------
+
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+
+    void Start()
+    {
+        TestClass person1 = new TestClass();
+        person1.name = "Tivadar";
+        person1.age= 85;
+        person1.height = 170;
+        person1.doSmoke= true;
+
+// de ez egy field, amihez hozzá tudunk így férni, amíg public
+
+    } 
+}
+
+//------------------------------
+
+
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear() 
+    {
+        age++;
+    }
+}
+
+//----------------------------------
+
+using System;       // kell a serializable-hez
+
+[Serializable]      // ettől tudjuk majd hazsnálni serializefield-ként
+
+public class testClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear()
+    {
+        age++;
+    }
+}
+
+//----------------TANÁRI-----------------------
+
+
+using System;
+
+[Serializable]
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear() 
+    {
+        age++;
+    }
+}
+
+
+// ---------------------------------------------
+
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+    [SerializeField] List<TestClass> persons;
+
+    void Start()
+    {
+
+        TestClass person1 = new TestClass();
+        person1.name = "Tivadar";
+        person1.age = 85;
+        person1.height = 170;
+        person1.doSmoke = true;
+
+        person1.AgeOneYear();
+        Debug.Log(person1.age);
+    }
+}
+
+//------------------nálam testClass, nála TestClass a kód ezért "hibás" -------------------
+
+
+// --------------------ez mint c# téma --------------------------------
+
+using System;       // kell a serializable-hez
+
+[Serializable]      // ettől tudjuk majd használni serializefield-ként
+
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear()
+    {
+        age++;
+    }
+}
+
+[Serializable]
+public struct MyVector2
+{
+    public float x, y;      // korábban nem lehetett kettő különböző monobehaviour-t létrehoztni, nem futott volna, itt lehet egyébként, mert itt típust definiálunk
+
+}
+
+public enum Direction{ Up, Right, Down, Left }
+
+// mindhárom új típus
+
+//----------------------TANÁRI --------------------------------
+
+using System;
+
+[Serializable]
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear() 
+    {
+        age++;
+    }
+}
+
+[Serializable]
+public struct MyVector2
+{
+    public float x, y;
+}
+
+public enum Direction{ Up, Right, Down, Left }
+
+// ha fix elemer van szükség, akkor felvehetek rá egy enum-ot. Int-ben is tárolható, enum-mal szebb, egyszerűbb dolgozni
+
+
+// ---------------------------------------------
+
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+    [SerializeField] List<TestClass> persons;
+    [SerializeField] Direction TestDirection;  // ezzel fel is vetterm és a létező listát használja
+
+    void Start()
+    {
+
+        TestClass person1 = new TestClass();
+        person1.name = "Tivadar";
+        person1.age = 85;
+        person1.height = 170;
+        person1.doSmoke = true;
+
+        person1.AgeOneYear();
+
+        Debug.Log(person1.age);
+
+        // --------------
+
+        MyVector2 mv2 = new MyVector2();
+
+        Direction dir = Direction.Right;
+
+    }
+}
+
+
+//----------------------FOLYTATJUK --------------------------------
+
+
+
+
+using System;
+
+[Serializable]
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear()
+    {
+        age++;
+    }
+}
+
+
+[Serializable]
+public struct MyVector2
+{
+    public float x, y;
+
+    public void Normalize()
+    {
+        // itt megcsináljuk a normalize metódust  újra (ez már létezik)
+    }
+}
+
+public enum Direction { Up, Right, Down, Left }
+
+
+//------------------------------------------------------------
+
+
+//-------------------TANÁRI ELEJE-----------------------------------
+
+
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+    [SerializeField] List<TestClass> persons;
+    [SerializeField] Direction testDirection; 
+
+    void Start()
+    {
+
+        TestClass person1 = new TestClass();
+        person1.name = "Tivadar";
+        person1.age = 85;
+        person1.height = 170;
+        person1.doSmoke = true;
+
+        person1.AgeOneYear();
+
+        Debug.Log(person1.age);
+
+        // --------------
+
+        MyVector2 mv2 = new MyVector2();
+        mv2.Normalize();
+
+        Direction dir = Direction.Right;
+        dir = Direction.Left;
+        
+        // -------------------------------------------------------------
+
+
+        TestClass personA = new TestClass() { name = "Aladár" };   // Class
+        MyVector2 mvA = new MyVector2() { x = 1, y = 2 };           // Struct
+
+        TestClass personB = personA;
+        MyVector2 mvB = mvA;
+
+
+        personA.name = "Júlia";
+        mvA.x = 100;
+
+        Debug.Log(personB.name);     // ??? 
+        Debug.Log(mvB.x);            // ???  (csak egyet kapunk eredménképp, merz az új változó volt 
+				     // (int, float, bool mind változó, vector2, vector3, quaternion 
+			             // (mind struktúra értéktípus), de a GameObject összes referencia típus
+				     // string, töbm, lista referencia típus mind
+
+
+    }
+}
+
+// nem az értéket tartalmazza, hanem a referenciát, így rámutathatunk kettővel is egy objektumra
+// referencia típusok
+
+// struktúráknál van az érték típus, de van egy változó, de szétválaszthatatlan,
+// a váltzoó és érték egy az egyben is megfeleltethető
+
+// ---------------------------------------------------------------------------------------
+
+using System;
+
+[Serializable]
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear() 
+    {
+        age++;
+    }
+}
+
+
+[Serializable]
+public struct MyVector2
+{
+    public float x, y;
+
+    public void Normalize() 
+    {
+        // ...
+    }
+}
+
+public enum Direction{ Up, Right, Down, Left }
+
+//---------------------TANÁRI VÉGE-----------------------------------------------------
+
+
+// ------------------------------ ANIMÁCIÓ --------------------------------
+
+szemeket csináltbuk
+Animation könyvtár
+Animator 
+
+Window - Animation - ANimator
+görgővel nagyít,
+ha valami ki van jelölve és nyomok egy F-et, aKKOR ODA UGRIK, AHOL A LÉNYEG VAN
+
+jobbgomb create state empty
+Sárha doboz idle
+
+
+New animation 
+Név
+create - asset - animator controller
+
+Window - Animation - Animation még egy ablak
+
+----------------
+
+szemek kész
+Animation ktár létrehozás - animator script
+Window - Animation - ANimator
+görgővel nagyít,
+ha valami ki van jelölve és nyomok egy F-et, aKKOR ODA UGRIK, AHOL A LÉNYEG VAN
+
+jobbgomb create state empty
+Sárha doboz idle
+
+Szemöldök - alapnál, scale addkey
+húzom a csíkot
+megint,
+még előrébb, ott változtatok
+
+eleje nyitott
+kezdő csuknál nyitott
+csukás
+záró csukás nyitott
+utána több idű nyitot
+
+
+
+ha kész és kijelölöm mind, tudoh húznio, növelni
+
+
+folyamatos, ismtlődő, vagy egyszeri animáció
+LOOP
+
+--------
+
+Animator - new state - empty - nervous
+SImán CoinIdle - CoinNervous másolat
+Animator - nervous jobbegér - fent a motion (inspector) ba kiválasztom a coin nervous-t
+
+
+Animation-on belül van dopesheet (pontok és curves (alul) amit hazsnálhatok
+lenyithatod, melyikkel miat akarsz csinálni a Preview alatt animation-nál, a mentést a piros recorddal, alatta 
+kiválasztható, hogy mio, hol, merre
+
+
+Idle - jobbgomb - make transition - ráhúzzuk a nervous-ra. Ugyanezt vissza is
+jobboldalon parameters - plusz gomb (float, int, bool, trigger)
+float playerDistance
+idle-nervouis nyilra, conditions plussz felvsdzem playerdistance < 5
+a másik nyilra rákatt (nervous-idle) playerdistance > 6
+ilyenkor a nullát playben módosítva megcsinálja a mozgást, váltást
+
+CoinAnimation - coin preafab-hoz hozzáadom a scriptet, megírom
+
+
+//----------------------------------------------------------------------------------------
+
+using UnityEngine;
+
+class CoinAnimation : MonoBehaviour
+{
+    [SerializeField] Animator animator;
+
+    void Update()
+    {
+        Collector[] collectors = FindObjectsOfType<Collector>();
+        float distance = float.MaxValue;
+
+        if (collectors.Length > 0)
+        {
+            Vector3 pos = transform.position;
+            for (int i = 0; i < collectors.Length; i++)
+            {
+                Collector c = collectors[i];
+                float curredntDist =
+                    Vector3.Distance(c.transform.position, pos);  // ez volt a , után a 2. érték: transform.position 
+                if (curredntDist < distance)
+                {
+                    distance = curredntDist;
+                }
+            }
+
+        }
+
+
+        animator.SetFloat("PlayerDistance", distance);   // AZért volt hiba, mert már létrehoztam egy Animator-t és az bezavart
+    }
+
+}
+
+//---------------------------------------------------------------------------------
+
+
+
+
+
+.-------------------
+
+Window -- Animation - mind animation, mind animator kell, bekötjük a project és console mellé 3. és 4. pontnak
+Animation könyvtár Assets alatt
+Project alatt - jobbgomb - create - animation controller (coin)
+ide jön a sokszínű állapot az animatorban
+Project alatt - jobbgomb - create - animation (CoinIdle, CoinNervous)
+A Coin-ra behúzom az animatort
+
+A COin Idle-t majd az Animatorban az új gombra (STATE) húzom be, amit elnevezet Idle-nek
+A másik amit létrehozok hasonló "gombszerű", az lesz az ideges. Abba CoinNervous-t
+A CoinIdle, Nervous anmációk elkészítése
+utána script készítés
+később majd a CoinAnimation Scriptet is behúzom a coiun-ra
+az "Animator" kulcsba beleteszem az Animatort (ami felette van, jobbra egyesülő kék és szürke nyil
+kb ez összesítve a feladat
+-------------------------------
+
+
+//-------------------------------------------------------------------------------------
+
+Index-ben beállíthatjuk, l...2...
+Összenyilazott kép
+
+
+
+Test scene-t létrehoz, starter asset-ekből 2d és 3d char-t felvesz.
+Kijelöli a robotot, belemegy az animátorba- Van 4 paramétere, meg 4 fajta állapota
+Mutgatja az állapotokat
+
+Transition - HasExitTime pipa - akkor befejezi a mozgást, utána kezd neki a másiknak, pl futás, gyors futás
+
+
+new game object, sprite renderer
+felvétel módban tömeg növelés, vagy capsule collider, fizika, kód, bármi ki és bekapcs... még akár a serializefiled értéket
+is, csaba: futás gyorsul, átteszem a sebességet, ne kelljen küddal.. stb.
+
+//--------------------------------------------------------------------------------------
+
+Auto Rotator-on akar változtatni, animációban feleszi a 10-es formási sebességet, nervous-ban hatvanra felesi (180 inkább)
+A forgás seebességét állítom, a forgást a kód végzi
+
+
+add component - audio source
+beköti, play on awake ki
+kód
+
+using UnityEngine;
+
+class CoinAnimation : MonoBehaviour
+{
+    [SerializeField] Animator animator;
+    [SerializeField] AudioSource blinkSound;
+
+    void Update()
+    {
+        Collector[] collectors = FindObjectsOfType<Collector>();
+        float distance = float.MaxValue;
+
+        if (collectors.Length > 0)
+        {
+            Vector3 pos = transform.position;
+            for (int i = 0; i < collectors.Length; i++)
+            {
+                Collector c = collectors[i];
+                float curredntDist =
+                    Vector3.Distance(c.transform.position, pos);  // ez volt a , után a 2. érték: transform.position 
+                if (curredntDist < distance)
+                {
+                    distance = curredntDist;
+                }
+            }
+
+        }
+
+
+        animator.SetFloat("PlayerDistance", distance);   // AZért volt hiba, mert már létrehoztam egy Animator-t és az bezavart
+    }
+
+
+    public void Blink()
+    {
+        blinkSound.Play();
+
+    }
+}
+
+//--------------- amikor pislog, akkor csinálja
+Animation fül, Add event (mint óvszer), eligazítom, kiválasztom a listából
+
+//--------------------------------------------------------------------------------
+
+3d sound settings - 2d hang csak lejátszódik, semmi extra. a 3d hang esetén számít, hol van a kettő.
+topmítja a távoli hangot és distort, irány, stb... nagyon 3d Hang az egyes a csúszkán (SPACIAL BLEND hogyan viselkedjen)
+
+Audio source - hoz effect... (audio Reverb Filter)
+
+//-----------------------------VÉGE----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
