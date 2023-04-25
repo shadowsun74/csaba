@@ -1,0 +1,483 @@
+// 12. óra //
+// TestMonobehaviour-ba kötöttük be a testClass-t, ami nem monobeh, pl. lista bekötése ezzel műxik...
+
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TestMonoBehaviour : MonoBehaviour
+{
+    [SerializeField] List<TestClass> persons;
+    [SerializeField] Direction TestDirection;  
+
+    void Start()
+    {
+
+        TestClass person1 = new TestClass();
+        person1.name = "Tivadar";
+        person1.age = 85;
+        person1.height = 170;
+        person1.doSmoke = true;
+
+        person1.AgeOneYear();
+
+        Debug.Log(person1.age);
+
+        // --------------
+
+        MyVector2 mv2 = new MyVector2();
+        mv2.Normalize();
+
+        Direction dir = Direction.Right;
+        dir = Direction.Left;
+
+        // -------------------------------------------------------------
+
+
+        TestClass personA = new TestClass() { name = "Aladár" };   // Class
+        MyVector2 mvA = new MyVector2() { x = 1, y = 2 };           // Struct
+
+        TestClass personB = personA;
+        MyVector2 mvB = mvA;
+
+
+        personA.name = "Júlia";
+        mvA.x = 100;
+
+        Debug.Log(personB.name);     // ???
+        Debug.Log(mvB.x);            // ???
+
+
+    }
+}
+
+
+
+
+
+
+//------------
+
+
+
+using System;
+
+[Serializable]
+public class TestClass
+{
+    public string name;
+    public int age;
+    public float height;
+    public bool doSmoke;
+
+    public void AgeOneYear()
+    {
+        age++;
+    }
+}
+
+
+[Serializable]
+public struct MyVector2
+{
+    public float x, y;
+
+    public void Normalize()
+    {
+        // itt megcsináljuk a normalize metódust  újra (ez már létezik)
+    }
+}
+
+public enum Direction { Up, Right, Down, Left }
+
+//----------------------------EZ VOLT-----------------------------------------
+
+//Serializálás ---- ez amikor átkonvertáljuk. De-Serializálás, amikor lementünk valamit, pl belül lemódosítunk valamit, 
+// lementjük a 3dGame-t és txt-ként nyitjuk meg, akkort azt fogja magában tartani.
+
+// enumok - intet helyettesítenek, programozás kontextusban szebb, mint az int
+
+// test classban a: "public enum Direction { Up, Right, Down, Left }" lehet UP = 10, ...
+// mikor jó: ha a 2d-s és 3d-s direction-nál ugyanazt az UP-ot megadom, hogy ugyanazt az "alapot" hazsnálja, a többi (Down)
+// pl már tudja magától
+
+
+//-------------------------------------------------------
+
+using UnityEngine;
+
+[CreateAssetMenu]                               // ha akarjuk mentei az assetet, de Unity-n belül is meg akajuk mutatni a menüsorban
+public class AudioSet : ScriptableObject        // ez is unity, de ki tudjuk menteni fájlba
+{
+
+}
+
+// ez innentől kezdve a file - create legtetején lesz AudioSet scrioptable object
+
+// megnyitja az animation-t, rámegy a coin szemöldökére - Audio Source be van kötve, milyen hangja van a pislogásnak
+// de most véletlenszerű lesz (lábnál van, hogy néha véletlenszerűen játsdzik egyet, életszerűbb hang
+
+// [serializefield] List<AudioClip> clips; - lehetne így is
+// public void blink() alatt int randomindex 7 Random.Range(0, clips.count); blinkSound.clip ( clips[randomIndex]; 
+// aztán meg blinkSound.Play();
+
+// -------------------------------
+
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu]
+class AudioSet : ScriptableObject
+{
+    [SerializeField] List<AudioClip> clips;
+
+    public AudioClip GetRandom() 
+    {
+        int randomIndex = Random.Range(0, clips.Count);
+        return clips[randomIndex];
+    }
+}
+
+// a coinba beletesszük
+
+
+using UnityEngine;
+
+class CoinAnimation : MonoBehaviour
+{
+    [SerializeField] Animator animator;
+    [SerializeField] AudioSource blinkSound;
+
+    [SerializeField] AudioSet audioSet;
+
+    void Update()
+    {
+        Collector[] collectors = FindObjectsOfType<Collector>();
+        float distance = float.MaxValue;
+
+        if (collectors.Length > 0)
+        {
+            Vector3 pos = transform.position;
+            for (int i = 0; i < collectors.Length; i++)
+            {
+                Collector c = collectors[i];
+                float curredntDist =
+                    Vector3.Distance(c.transform.position, pos);  // ez volt a , után a 2. érték: transform.position 
+                if (curredntDist < distance)
+                {
+                    distance = curredntDist;
+                }
+            }
+
+        }
+
+
+        animator.SetFloat("PlayerDistance", distance);   // AZért volt hiba, mert már létrehoztam egy Animator-t és az bezavart
+    }
+
+
+    public void Blink()
+    {
+        blinkSound.clip = audioSet.GetRandom();
+        blinkSound.Play();
+
+    }
+}
+
+//------------------------------------
+
+// BlinkSound-ot belockolja, kikeresi a hangokat és behúzza a listába
+
+// Spatial Blend = 1 ha 3d hang kell és térben is kezelje
+// Audio Source - csak az adott cuccon torzít
+// Audio Listener - mindenen torzít (házba pl más hangokat kapsz)
+
+//----------------------------------
+
+// Ezt simán beállítod:
+using UnityEngine;
+
+public class ManagerObjects : MonoBehaviour
+{
+    void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
+// elindítod a játékot, ezek egyértelműen megmaradnak játék indításkor, ezek nem psutulnak el (amire rátetted)
+// így tudunk adatot is átvinni scebe-ből scene-be (vagy mentünk)
+
+
+
+// STATIKUS FIELD VAGY METÓDUS VAGY OSZTÁLY
+
+// Collector -ban az int collected = 0 helyett static int collected = 0 (így statikus, csak egy példány létezhet
+// statikus nem példányhoz csatlakozik, hanem egy nagy collected az egész osztályon belül, 
+// ha vége a játéknak és újratöltjük, a collecvtor érték ezért megmarad.
+
+    public static void MyMethod(int n)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                Debug.Log(i * j);
+            }
+        }
+    }
+
+// a lényege, hogy mindenhonnan hívható. Pl: Collector.MyMethod(100), mert fix
+
+public static int Min(int a, int b)
+{
+	return a < b ? a : b);
+}
+// a fenti minimum függvény keresése... fontos, hogy a statikust elérjük nem statikus függvényből. void-ot is...
+// nem statikust meg nem érünk el statikusból????? UTÁNAOLVASNI
+
+
+Player Trigger Script
+Player Trigger sphere félig süllyesztve a pályán
+
+
+----------------------
+
+using UnityEngine;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() != null)
+        {
+            source.clip = audioSet.GetRandom();
+            source.Play();
+        }
+    }
+
+}
+
+-----------------------
+
+using UnityEngine;
+
+class Player : MonoBehaviour
+{
+
+}
+
+-------------------------------------------
+Garanbtáljuk, hogy legyen audiosource, playertrighger komponensnél
+Ha van kötelező elem, pl player trigger behuzásánál egyből beránt egy audiosource-t.
+PlayerTrigger a PlayerTriggerre, figyeli a playerre húzott player scriptet
+Alatta meg az AudioSet-be a blink sounds-ot (amit felül new-felül megjelenő objektumként feltöltöttünk
+
+//------------------------------------------------
+
+Pattern SingleTon - van ilyen pattern máshol is, de ez most unity specifikus lesz
+
+ using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameManager : MonoBehaviour
+{
+    [SerializeField] string sceneName;
+
+    public static GameManager instance;		// új
+
+
+    void Awake()				// asz egész void új
+    {
+        instance = this;
+    }
+
+
+    public void RestartGame()
+    {
+
+        SceneManager.LoadScene(sceneName);
+
+    }
+
+
+    public void nextLevel()			// ez is új
+        {
+        SceneManager.LoadScene(sceneName);  // gyorsaság miatt ugyanazt, hívunk itt normálisan mást
+    }
+
+}
+
+-----------------------
+
+Collectort felbővítjük:
+
+    void OnTriggerEnter(Collider other)
+    {
+        Collectable c = other.GetComponent<Collectable>();
+
+        if (c != null)
+        {
+            collected += c.GetValue();
+            Debug.Log(collected);
+
+            NewMethod();
+
+            c.Teleport();
+
+
+            if (collected > 100)				// ezzel a teljes if ággal
+            {
+                collected = 0                
+		GameManager.instance.nextLevel();
+            }
+        }
+
+------------------------------
+
+Aztán ez:_
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameManager : MonoBehaviour
+{
+    [SerializeField] string sceneName;
+
+    public static GameManager instance;
+
+
+    void Awake()
+    {
+        if (instance == null)
+        instance = this;
+        else
+            Debug.LogError("More than one GameManager!");
+    }
+
+
+    public void RestartGame()
+    {
+
+        SceneManager.LoadScene(sceneName);
+
+    }
+
+
+    public void nextLevel()
+        {
+        SceneManager.LoadScene(sceneName);  // gyorsaság miatt ugyanazt, hívunk itt normálisan mást
+    }
+
+
+}
+//----------------------------------------------
+
+MENTÉS:
+------
+using UnityEngine;
+
+class TransformSaver : MonoBehaviour
+{
+
+
+
+    private void OnDestroy()
+    {
+        Vector3 pos = transform.position;
+        Quaternion rotation= transform.rotation;
+
+        PlayerPrefs.SetFloat("x", pos.x);
+        PlayerPrefs.SetFloat("y", pos.y);
+        PlayerPrefs.SetFloat("z", pos.z);
+            // windowson, andoridon máshogy mentünk, de unity "eltakarja" a mentési szabályokat, ez a mentési megoldásset
+    }
+}
+-----------------------tovább-----------------------------------
+
+using UnityEngine;
+
+class TransformSaver : MonoBehaviour
+{
+    [SerializeField] string key = "UNDEFINED!!!";
+
+
+    private void OnDestroy()
+    {
+        Vector3 pos = transform.position;
+        Quaternion rotation= transform.rotation;
+
+        PlayerPrefs.SetFloat(key + " / x", pos.x);
+        PlayerPrefs.SetFloat(key + " / y", pos.y);
+        PlayerPrefs.SetFloat(key + " / z", pos.z); // a key +... lehetőséget ad, hogy több mindent tudjunk hazsnálni 
+            // windowson, andoridon máshogy mentünk, de unity "eltakarja" a mentési szabályokat, ez a mentési megoldásset
+    }
+}
+----------------------------------------------
+Dictionary (HashMap máshol) - olvassunk utána. Annyit tudni, hogy unity nem tud serializálni, nem menthető, de
+az "adatszertkezet" (ez a magyar neve) - egy fajta adat tárolására, nagyon gyors a keresése, azért hazsnos.
+
+-----------------------------------------------
+
+TANÁRI:
+
+using UnityEngine;
+
+class TransformSaver : MonoBehaviour
+{
+    [SerializeField] string key = "UNDEFINED!!!";
+
+    void Awake()						// ez a betöltés
+    {		
+        if (!PlayerPrefs.HasKey(key + " / x")) return;
+
+        float posX = PlayerPrefs.GetFloat(key + " / x");
+        float posY = PlayerPrefs.GetFloat(key + " / y");
+        float posZ = PlayerPrefs.GetFloat(key + " / z");
+
+        transform.position = new Vector3(posX, posY, posZ);
+    }
+
+    void OnDestroy()						// ez a kilépésnél mentés
+    {
+        Vector3 pos = transform.position;
+        Quaternion rotation = transform.rotation;
+
+        PlayerPrefs.SetFloat(key + " / x", pos.x);
+        PlayerPrefs.SetFloat(key + " / y", pos.y);
+        PlayerPrefs.SetFloat(key + " / z", pos.z);
+    }
+
+}
+
+Ráteszi a playerre
+---------------------------------------------------
+
+Most a rotation jön ( db float ír le egy quaternion-t, de ezt nem csináljuk meg. Érzékelteti, hogy elég "gyenge"
+a palyer prefs. E felett saját megoldást lehet.
+
+Csabi írt egy scriptet, hogy bármely tipusű feladatot, ami serializefield lehet, azt tudjuk menteni.
+Fel van töltve a scriptrészleteibe Csabinak.
+
+
+NE FELEJTSD EL HASZNÁLNI: https://codeshare.io/N3pbl1 ez volt magam is tudok ilyet
+
+
+--- Gitignore-ban benne van a BUildf mappa ezért a játékot nem tölti fel, ha ezt a könyvtárnevet adjuk, akkor erre jó
+
+-- windirstat
+
+
+
+
+
+
+
+
