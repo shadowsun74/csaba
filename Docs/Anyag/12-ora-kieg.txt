@@ -1,0 +1,530 @@
+DIALOG
+----------------
+Create - rolepaly - dialog meg is jelenik ha elmented...
+
+lehet több string és tönn daslog, de ha több, mint kettő, akkor simán tömb 
+
+Csinál roleplay mappát, abba hozza létre a dialog1- dialog2... ket (Scriptable object)
+
+
+Class answer-t nem tudná serialize-ként hazsnáéni, ha nem írja ki, hogy serializable, onnantól igen
+
+----------------------------------------------
+
+using System;
+using UnityEngine;
+
+[CreateAssetMenu(fileName  = "Dialog", menuName = "Roleplay/Dialog", order =0 )]
+public class Dialog : ScriptableObject
+{
+    [SerializeField] string text = "Default Text";
+    [SerializeField] Answer[] answers;
+
+//-----------------
+	public string GetText()
+		{
+			itt valamit csinált
+		}
+
+
+
+
+}
+
+[Serializable]
+class Answer 
+{
+    public string text;
+    public Dialog dialog;
+}
+
+----------------------------------------------------
+Hogy vagy... jól, nem túl jól, és bekötve alá a dialógus 1 vagy dialógus 2-t, ami a köv. dialog-ra megy.
+---------------------------------------------------
+
+használjuk is valamire - payer trigger ne csak audio-t játsszon, hanem dialógust is
+Player trigger-be beletette a [serializefield] Dialog dialog;
+
+On trigger enteren meg
+
+if (other.GetComponent<Player>() == null) return
+.
+.
+.
+source alatt
+.
+.
+.
+if (dialog !=0)
+{
+itt csinál valamit a dialog-gal
+}
+
+-------------------------------------------------------------
+Canvas-t átméretezi, beleteszi a játékba
+
+
+//-------------------------------------------------------------------------------------
+
+using TMPro;
+using UnityEngine;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+    [SerializeField] Dialog dialog;
+    [SerializeField] TMP_Text quastionText;
+    [SerializeField] Canvas canvas;
+    [SerializeField] RectTransform answers;
+
+
+	Button[] buttons;
+
+
+    void Start()
+    {
+        canvas.enabled = false;
+    }
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+        canvas = GetComponentInChildren<Canvas>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+
+        source.clip = audioSet.GetRandom();
+        source.Play();
+
+
+        if (dialog != null)
+        {
+            canvas.enabled = true;
+            Debug.Log(dialog.GetText());
+            quastionText.text = dialog.GetText();
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;        
+        canvas.enabled = false;
+    }
+
+}
+
+
+//-------------------------------------------------------------------------------------
+
+
+Lokális kék nyil előre mindíg!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+Valami olyan volt, hogy a dobioz visszafelé írta a szüöveget, beletette egy dobozba, ami a look at lett
+majd beletette a canvast és elfrgatta 180 fokkal, valamiért ettől kezdve jól mutatta mindig a szöveget
+
+Így van a struktúra
+----------------------
+Player Tirgger
+	Look Art Camera
+		Canvas
+			Panel
+				Question
+			Answers
+				Button
+				Button2 -- 5ig
+
+utton szélességet és magasságot állítsa ő - kifeszíti. Szöveg beállítások
+Vertical Group azért jó, mert több buttont be tudunk rakni, ha vertikálisan az automatizmus kikapcs, akkor szépen berendezi
+a gombjainkat. Ha kódból hozzátszek elemeekt, megfelelően rendezi be.
+Létrehoz egy prefab-ot, answer button-t 
+
+--------------------------------------------------
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+    [SerializeField] Dialog dialog;
+    [SerializeField] TMP_Text quastionText;
+    [SerializeField] Canvas canvas;
+    [SerializeField] RectTransform answers;
+
+    Button[] buttons;
+    TMP_Text[] answerTexts;
+
+    void Start()
+    {
+        canvas.enabled = false;
+        buttons = answers.GetComponentsInChildren<Button>();
+        answerTexts = answers.GetComponentsInChildren<TMP_Text>();
+        TurnOffAnswersButtons();
+    }
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+        canvas = GetComponentInChildren<Canvas>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+
+        source.clip = audioSet.GetRandom();
+        source.Play();
+
+
+        if (dialog != null)
+        {
+            canvas.enabled = true;
+            quastionText.text = dialog.GetText();
+            for (int i = 0; i < dialog.answers.Length; i++)
+            {
+                Answer answer = dialog.answers[i];
+                if (buttons.Length > i) 
+                {
+
+                    buttons[i].gameObject.SetActive(true);
+                    answerTexts[i].text = answer.text;
+                }
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+        canvas.enabled = false;
+        TurnOffAnswersButtons();
+    }
+
+    private void TurnOffAnswersButtons()
+    {
+        foreach (Button b in buttons)
+        {
+            b.gameObject.SetActive(false);
+        }
+    }
+}
+
+
+// --------------------------------------------------
+
+
+EZ A JÓ
+
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+    [SerializeField] Dialog dialog;
+    [SerializeField] TMP_Text quastionText;
+    [SerializeField] Canvas canvas;
+    [SerializeField] RectTransform answers;
+
+    Button[] buttons;
+    TMP_Text[] answerTexts;
+
+    void Start()
+    {
+        canvas.enabled = false;
+        buttons = answers.GetComponentsInChildren<Button>();
+        answerTexts = answers.GetComponentsInChildren<TMP_Text>();
+        TurnOffAnswersButtons();
+    }
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+        canvas = GetComponentInChildren<Canvas>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+
+        source.clip = audioSet.GetRandom();
+        source.Play();
+
+
+        if (dialog != null)
+        {
+            canvas.enabled = true;
+            quastionText.text = dialog.GetText();
+            for (int i = 0; i < dialog.answers.Length; i++)
+            {
+                Answer answer = dialog.answers[i];
+                if (buttons.Length > i) 
+                {
+
+                    buttons[i].gameObject.SetActive(true);
+                    answerTexts[i].text = answer.text;
+                }
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+        canvas.enabled = false;
+        TurnOffAnswersButtons();
+    }
+
+    private void TurnOffAnswersButtons()
+    {
+        foreach (Button b in buttons)
+        {
+            b.gameObject.SetActive(false);
+        }
+    }
+}
+
+
+// --------------------------------------------------
+
+using System;
+using UnityEngine;
+
+[CreateAssetMenu(fileName  = "Dialog", menuName = "Roleplay/Dialog", order =0 )]
+public class Dialog : ScriptableObject
+{
+    [SerializeField] string text = "Default Text";
+    public Answer[] answers;
+
+    public string GetText()
+    {
+        return text;
+    }
+}
+
+[Serializable]
+public class Answer
+{
+    public string text;
+    public Dialog dialog;
+}
+
+-----------------------------
+vége
+----------------
+
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+    [SerializeField] Dialog dialog;
+    [SerializeField] TMP_Text quastionText;
+    [SerializeField] Canvas canvas;
+    [SerializeField] RectTransform answers;
+
+    Button[] buttons;
+    TMP_Text[] answerTexts;
+
+    void Start()
+    {
+        canvas.enabled = false;
+        buttons = answers.GetComponentsInChildren<Button>();
+        answerTexts = answers.GetComponentsInChildren<TMP_Text>();
+        TurnOffAnswersButtons();
+    }
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+        canvas = GetComponentInChildren<Canvas>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+
+        source.clip = audioSet.GetRandom();
+        source.Play();
+
+
+        if (dialog != null)
+        {
+            canvas.enabled = true;
+            quastionText.text = dialog.GetText();
+            for (int i = 0; i < dialog.answers.Length; i++)
+            {
+                Answer answer = dialog.answers[i];
+                if (buttons.Length > i) 
+                {
+
+                    buttons[i].gameObject.SetActive(true);
+                    answerTexts[i].text = answer.text;
+                }
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+        canvas.enabled = false;
+        TurnOffAnswersButtons();
+    }
+
+    private void TurnOffAnswersButtons()
+    {
+        foreach (Button b in buttons)
+        {
+            b.gameObject.SetActive(false);
+        }
+    }
+}
+
+
+// --------------------------------------------------
+
+using System;
+using UnityEngine;
+
+[CreateAssetMenu(fileName  = "Dialog", menuName = "Roleplay/Dialog", order =0 )]
+public class Dialog : ScriptableObject
+{
+    [SerializeField] string text = "Default Text";
+    public Answer[] answers;
+
+    public string GetText()
+    {
+        return text;
+    }
+}
+
+[Serializable]
+public class Answer
+{
+    public string text;
+    public Dialog dialog;
+}
+
+-------------------------------------------
+
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(AudioSource))]
+public class PlayerTrigger : MonoBehaviour
+{
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioSet audioSet;
+    [SerializeField] Dialog dialog;
+    [SerializeField] TMP_Text quastionText;
+    [SerializeField] Canvas canvas;
+    [SerializeField] RectTransform answers;
+
+    Button[] buttons;
+    TMP_Text[] answerTexts;
+
+    Dialog currentDialog;
+
+    void Start()
+    {
+        canvas.enabled = false;
+        buttons = answers.GetComponentsInChildren<Button>();
+        answerTexts = answers.GetComponentsInChildren<TMP_Text>();
+        TurnOffAnswersButtons();
+    }
+
+    void OnValidate()
+    {
+        source = GetComponent<AudioSource>();
+        canvas = GetComponentInChildren<Canvas>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+
+        source.clip = audioSet.GetRandom();
+        source.Play();
+
+
+        if (dialog != null)
+        {
+            currentDialog = dialog;
+            canvas.enabled = true;
+            quastionText.text = dialog.GetText();
+            for (int i = 0; i < dialog.answers.Length; i++)
+            {
+                Answer answer = dialog.answers[i];
+                if (buttons.Length > i) 
+                {
+
+                    buttons[i].gameObject.SetActive(true);
+                    answerTexts[i].text = answer.text;
+                }
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.GetComponent<Player>() == null) return;
+        canvas.enabled = false;
+        TurnOffAnswersButtons();
+    }
+
+    private void TurnOffAnswersButtons()
+    {
+        foreach (Button b in buttons)
+        {
+            b.gameObject.SetActive(false);
+        }
+    }
+
+    public void PuttonPress(int index) 
+    {
+    
+    }
+}
+
+
+// --------------------------------------------------
+
+using System;
+using UnityEngine;
+
+[CreateAssetMenu(fileName  = "Dialog", menuName = "Roleplay/Dialog", order =0 )]
+public class Dialog : ScriptableObject
+{
+    [SerializeField] string text = "Default Text";
+    public Answer[] answers;
+
+    public string GetText()
+    {
+        return text;
+    }
+}
+
+[Serializable]
+public class Answer
+{
+    public string text;
+    public Dialog dialog;
+}
+
+
+
